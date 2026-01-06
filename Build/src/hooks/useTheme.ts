@@ -8,7 +8,7 @@ type ThemeState = {
   setTheme: (value: ThemePreference) => void;
 };
 
-const STORAGE_KEY = "id3editor-theme";
+const STORAGE_KEY = "floeditor-theme";
 
 const isBrowser = () =>
   typeof window !== "undefined" && typeof document !== "undefined";

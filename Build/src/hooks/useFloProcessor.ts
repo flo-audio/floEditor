@@ -7,12 +7,12 @@ import init, {
 } from "@flo-audio/libflo-audio";
 
 export const DEFAULT_SYLT_FRAME: SYLTFrame = {
-    type: 1,
-    text: [],
-    timestampFormat: 2,
-    language: "eng",
-    description: "Synced Lyrics",
-  };
+  type: 1,
+  text: [],
+  timestampFormat: 2,
+  language: "eng",
+  description: "Synced Lyrics",
+};
 export const DEFAULT_METADATA: FloMetadata = {
   title: "",
   artist: "",

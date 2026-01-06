@@ -2,23 +2,26 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { Music, Bug } from "lucide-react";
 import { FileUploadSection } from "./Upload";
 import { BasicTagsSection } from "./BasicTags";
-import { AlbumArtSection } from "./AlbumArt";
+import { ArtworkSection } from "./Artwork";
 import { SyncedLyricsSection } from "./SyncedLyrics";
+import { SectionMarkersSection } from "./SectionMarkers";
+import { BpmMapSection } from "./BpmMap";
 import { ProcessButton } from "./Process";
 import { AlertMessage } from "./Alert";
 import { ThemeToggle } from "./ThemeToggle";
-import { useFloProcessor, DEFAULT_METADATA, DEFAULT_SYLT_FRAME } from "../hooks/useFloProcessor";
+import { useFloProcessor } from "../hooks/useFloProcessor";
 import { useFloLoader } from "../hooks/useFloLoader";
 import { useLRCParser } from "../hooks/useLRCParser";
+import { DEFAULT_METADATA, DEFAULT_SYLT_FRAME } from "../utils/constants";
 
 export default function App() {
   const [file, setFile] = useState<File | null>(null);
   const [originalFileBytes, setOriginalFileBytes] = useState<Uint8Array | null>(
-    null
+    null,
   );
   const [metadata, setMetadata] = useState<FloMetadata>(() => ({
     ...DEFAULT_METADATA,
-  })); // Use reset function
+  }));
   const [albumArtUrl, setAlbumArtUrl] = useState<string | null>(null);
   const [syltFrame, setSyltFrame] = useState<SYLTFrame>(() => ({
     ...DEFAULT_SYLT_FRAME,
@@ -30,14 +33,14 @@ export default function App() {
   const [metadataSummary, setMetadataSummary] = useState("");
 
   const { isProcessing, updateMetadata, downloadFile, resetMetadata } =
-    useFloProcessor(); // Updated
+    useFloProcessor();
   const { parseLRCFormat } = useLRCParser();
-  const { isLoading: isReadingMetadata, loadFloFile } = useFloLoader(); // Updated
+  const { isLoading: isReadingMetadata, loadFloFile } = useFloLoader();
   const activeFileSignature = useRef("");
 
   const buildFileSignature = useCallback(
     (target: File) => `${target.name}:${target.lastModified}:${target.size}`,
-    []
+    [],
   );
 
   useEffect(() => {
@@ -55,7 +58,7 @@ export default function App() {
         activeFileSignature.current = "";
         setFile(null);
         setOriginalFileBytes(null);
-        setMetadata(resetMetadata()); // Use reset function
+        setMetadata(resetMetadata());
         setAlbumArtUrl(null);
         setSyltFrame({ ...DEFAULT_SYLT_FRAME });
         setLrcText("");
@@ -80,7 +83,7 @@ export default function App() {
       setError(null);
       setSuccess("File loaded. Reading embedded tags...");
       setMetadataSummary("Scanning embedded metadata...");
-      setMetadata(resetMetadata()); // Reset
+      setMetadata(resetMetadata());
       setAlbumArtUrl(null);
       setSyltFrame({ ...DEFAULT_SYLT_FRAME });
       setLrcText("");
@@ -108,9 +111,9 @@ export default function App() {
         if (parsedMetadata) {
           setMetadata({ ...parsedMetadata });
           // Extract album art from pictures if present
-          if (parsedMetadata && parsedMetadata.pictures) {
+          if (parsedMetadata.pictures) {
             const coverPic = parsedMetadata.pictures.find(
-              (p) => p.picture_type === "cover_front"
+              (p) => p.picture_type === "cover_front",
             );
             if (coverPic) {
               const blob = new Blob([coverPic.data], {
@@ -119,24 +122,24 @@ export default function App() {
               setAlbumArtUrl(URL.createObjectURL(blob));
             }
           }
-
           // Extract synced lyrics if present
-          if (parsedMetadata && parsedMetadata.synced_lyrics) {
+          if (
+            parsedMetadata.synced_lyrics &&
+            parsedMetadata.synced_lyrics.length > 0
+          ) {
             const firstSylt = parsedMetadata.synced_lyrics[0];
-            if (firstSylt) {
-              setSyltFrame({
-                type: 1,
-                timestampFormat: 2,
-                language: firstSylt.language || "eng",
-                description: firstSylt.description || "Synced Lyrics",
-                text: firstSylt.lines.map((l) => [l.text, l.timestamp_ms]),
-              });
-            }
+            setSyltFrame({
+              type: 1,
+              timestampFormat: 2,
+              language: firstSylt.language || "eng",
+              description: firstSylt.description || "Synced Lyrics",
+              text: firstSylt.lines.map((l) => [l.text, l.timestamp_ms]),
+            });
           }
         }
 
         const importedFieldCount = Object.values(parsedMetadata || {}).filter(
-          (value) => typeof value === "string" && value.trim().length > 0
+          (value) => typeof value === "string" && value.trim().length > 0,
         ).length;
         const importedLyrics =
           parsedMetadata?.synced_lyrics?.[0]?.lines.length ?? 0;
@@ -146,13 +149,13 @@ export default function App() {
         setMetadataSummary(
           importedFieldCount > 0
             ? `Imported ${importedFieldCount} embedded tag${importedFieldCount === 1 ? "" : "s"}.`
-            : "No embedded tags found."
+            : "No embedded tags found.",
         );
 
         setSuccess(
           hasImportedData
             ? "Existing metadata imported. Continue editing below."
-            : "File loaded. Add or update tags below."
+            : "File loaded. Add or update tags below.",
         );
       } catch (loaderErr) {
         if (activeFileSignature.current !== signature) {
@@ -161,12 +164,12 @@ export default function App() {
         console.error("Failed to parse metadata", loaderErr);
         setMetadataSummary("");
         setError(
-          "Loaded file, but could not read embedded metadata automatically."
+          "Loaded file, but could not read embedded metadata automatically.",
         );
         setSuccess(null);
       }
     },
-    [loadFloFile, buildFileSignature, resetMetadata]
+    [loadFloFile, buildFileSignature, resetMetadata],
   );
 
   const handleMetadataChange = (field: keyof FloMetadata, value: any) => {
@@ -178,7 +181,6 @@ export default function App() {
       const entries = parseLRCFormat(lrcText);
       setSyltFrame((prev) => ({ ...prev, text: entries }));
       if (!metadata.lyrics || metadata.lyrics.length === 0) {
-        // Use lyrics for unsynced
         const derivedLyrics = entries
           .map(([line]) => line?.trim())
           .filter(Boolean)
@@ -205,7 +207,7 @@ export default function App() {
     if (updatedFile) {
       downloadFile(
         updatedFile,
-        `${metadata.title || file.name.replace(".flo", "")}_tagged.flo`
+        `${metadata.title || file.name.replace(".flo", "")}_tagged.flo`,
       );
       setSuccess("File processed and downloaded successfully!");
     } else {
@@ -213,41 +215,8 @@ export default function App() {
     }
   };
 
-  const handleSYLTChange = (updatedText: [string, number][]) => {
-    setSyltFrame((prev) => ({ ...prev, text: updatedText }));
-    // Update metadata synced_lyrics
-    const syncedLyrics = metadata.synced_lyrics.slice();
-    if (syncedLyrics.length === 0) {
-      syncedLyrics.push({
-        content_type: "lyrics",
-        lines: updatedText.map(([text, timestamp_ms]) => ({
-          text,
-          timestamp_ms,
-        })),
-      });
-    } else {
-      syncedLyrics[0].lines = updatedText.map(([text, timestamp_ms]) => ({
-        text,
-        timestamp_ms,
-      }));
-    }
-    setMetadata((prev) => ({ ...prev, synced_lyrics: syncedLyrics }));
-  };
-
-  const handleSYLTMetadataChange = (
-    field: "language" | "description",
-    value: string
-  ) => {
-    setSyltFrame((prev) => ({ ...prev, [field]: value }));
-    const syncedLyrics = metadata.synced_lyrics.slice();
-    if (syncedLyrics.length > 0) {
-      (syncedLyrics[0] as any)[field] = value;
-      setMetadata((prev) => ({ ...prev, synced_lyrics: syncedLyrics }));
-    }
-  };
-
   const populatedFields = Object.values(metadata).filter(
-    (value) => typeof value === "string" && value.trim().length > 0
+    (value) => typeof value === "string" && value.trim().length > 0,
   ).length;
   const sessionStats = [
     {
@@ -321,7 +290,7 @@ export default function App() {
                 <button
                   onClick={() => setShowEruda(!showEruda)}
                   type="button"
-                  className="btn w-full"
+                  className="btn"
                   data-variant="soft"
                   data-size="sm"
                   data-tone="secondary"
@@ -373,23 +342,50 @@ export default function App() {
           onMetadataChange={handleMetadataChange}
         />
 
-        {/* Album Art */}
-        <AlbumArtSection
-          albumArtUrl={albumArtUrl}
-          onAlbumArtChange={setAlbumArtUrl}
+        {/* Artwork */}
+        <ArtworkSection
+          pictures={metadata.pictures}
+          onPicturesChange={(pictures) =>
+            setMetadata({ ...metadata, pictures })
+          }
+          coverVariants={metadata.cover_variants}
+          onCoverVariantsChange={(coverVariants) =>
+            setMetadata({ ...metadata, cover_variants: coverVariants })
+          }
+          animatedCover={metadata.animated_cover}
+          onAnimatedCoverChange={(animatedCover) =>
+            setMetadata({ ...metadata, animated_cover: animatedCover })
+          }
         />
 
         {/* Synced Lyrics */}
         <SyncedLyricsSection
-          syltFrame={syltFrame}
-          onTextChange={handleSYLTChange}
-          onMetadataChange={handleSYLTMetadataChange}
+          syncedLyrics={metadata.synced_lyrics}
+          onSyncedLyricsChange={(syncedLyrics) =>
+            setMetadata({ ...metadata, synced_lyrics: syncedLyrics })
+          }
           lrcText={lrcText}
           onLrcTextChange={setLrcText}
           onImport={handleLRCImport}
-          unsyncedLyrics={metadata.lyrics?.[0]?.text || ""} // Use lyrics
+          unsyncedLyrics={metadata.lyrics?.[0]?.text || ""}
           onUnsyncedLyricsChange={(value) =>
-            handleMetadataChange("lyrics", value ? [{ text: value }] : [])
+            setMetadata({ ...metadata, lyrics: value ? [{ text: value }] : [] })
+          }
+        />
+
+        {/* Section Markers */}
+        <SectionMarkersSection
+          sectionMarkers={metadata.section_markers}
+          onSectionMarkersChange={(sectionMarkers) =>
+            setMetadata({ ...metadata, section_markers: sectionMarkers })
+          }
+        />
+
+        {/* BPM Map */}
+        <BpmMapSection
+          bpmMap={metadata.bpm_map}
+          onBpmMapChange={(bpmMap) =>
+            setMetadata({ ...metadata, bpm_map: bpmMap })
           }
         />
 

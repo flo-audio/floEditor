@@ -1,9 +1,9 @@
 import { Plus, Trash2, Clock, Upload } from "lucide-react";
+import { DEFAULT_SYLT_FRAME } from "../utils/constants";
 
 interface SyncedLyricsSectionProps {
-  syltFrame: SYLTFrame;
-  onTextChange: (text: [string, number][]) => void;
-  onMetadataChange: (field: "language" | "description", value: string) => void;
+  syncedLyrics?: SyncedLyrics[];
+  onSyncedLyricsChange: (syncedLyrics: SyncedLyrics[]) => void;
   lrcText: string;
   onLrcTextChange: (text: string) => void;
   onImport: () => void;
@@ -12,17 +12,30 @@ interface SyncedLyricsSectionProps {
 }
 
 export function SyncedLyricsSection({
-  syltFrame,
-  onTextChange,
-  onMetadataChange,
+  syncedLyrics = [],
+  onSyncedLyricsChange,
   lrcText,
   onLrcTextChange,
   onImport,
   unsyncedLyrics,
   onUnsyncedLyricsChange,
 }: SyncedLyricsSectionProps) {
+  const sylt =
+    syncedLyrics.length > 0
+      ? syncedLyrics[0]
+      : { ...DEFAULT_SYLT_FRAME, lines: [] };
+
   const handleAddEntry = () => {
-    onTextChange([...syltFrame.text, ["", 0]]);
+    const updated = [...syncedLyrics];
+    if (updated.length === 0) {
+      updated.push({
+        content_type: "lyrics",
+        lines: [{ text: "", timestamp_ms: 0 }],
+      });
+    } else {
+      updated[0].lines.push({ text: "", timestamp_ms: 0 });
+    }
+    onSyncedLyricsChange(updated);
   };
 
   const handleUpdateEntry = (
@@ -30,14 +43,19 @@ export function SyncedLyricsSection({
     text: string,
     timestamp: number,
   ) => {
-    const updated: [string, number][] = syltFrame.text.map((item, i) =>
-      i === index ? [text, timestamp] : item,
-    ) as [string, number][];
-    onTextChange(updated);
+    const updated = [...syncedLyrics];
+    if (updated.length > 0) {
+      updated[0].lines[index] = { text, timestamp_ms: timestamp };
+      onSyncedLyricsChange(updated);
+    }
   };
 
   const handleDeleteEntry = (index: number) => {
-    onTextChange(syltFrame.text.filter((_, i) => i !== index));
+    const updated = [...syncedLyrics];
+    if (updated.length > 0) {
+      updated[0].lines.splice(index, 1);
+      onSyncedLyricsChange(updated);
+    }
   };
 
   return (
@@ -45,14 +63,13 @@ export function SyncedLyricsSection({
       <div className="mb-4 flex items-center justify-between">
         <div>
           <p className="micro-label">Lyrics</p>
-          <h2 className="text-lg font-semibold">Lyrics &amp; Sync</h2>
+          <h2 className="text-lg font-semibold">Lyrics & Sync</h2>
         </div>
         <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-          {syltFrame.text.length} entries
+          {sylt.lines?.length || 0} entries
         </span>
       </div>
       <div className="space-y-4">
-        {/* LRC Import */}
         <div className="space-y-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
@@ -82,36 +99,29 @@ export function SyncedLyricsSection({
             className="w-full border border-input/80 bg-background/50 focus:bg-background rounded-md px-3 py-2 text-sm font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
           />
         </div>
-
-        {/* Metadata + Unsynced */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <label className="text-sm font-semibold tracking-wide text-foreground/70">
               Language
             </label>
             <input
-              value={syltFrame.language}
-              onChange={(e) => onMetadataChange("language", e.target.value)}
+              value={sylt.language || ""}
+              onChange={(e) => {
+                const updated = [...syncedLyrics];
+                if (updated.length > 0) {
+                  updated[0].language = e.target.value;
+                  onSyncedLyricsChange(updated);
+                }
+              }}
               placeholder="eng"
               maxLength={3}
               className="w-full border border-input/80 bg-background/50 focus:bg-background rounded-md px-3 py-2 text-sm uppercase tracking-widest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-semibold tracking-wide text-foreground/70">
-              Description
-            </label>
-            <input
-              value={syltFrame.description}
-              onChange={(e) => onMetadataChange("description", e.target.value)}
-              placeholder="Synced Lyrics"
-              className="w-full border border-input/80 bg-background/50 focus:bg-background rounded-md px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-            />
-          </div>
           <div className="space-y-2 md:col-span-2">
             <div className="flex items-center justify-between">
               <label className="text-sm font-semibold tracking-wide text-foreground/70">
-                Unsynced Lyrics (USLT)
+                Unsynced Lyrics
               </label>
               <span className="text-xs text-muted-foreground text-right">
                 Leave blank to auto-fill from the synced lines above.
@@ -126,8 +136,6 @@ export function SyncedLyricsSection({
             />
           </div>
         </div>
-
-        {/* Entries */}
         <div className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <label className="text-sm font-semibold tracking-wide text-foreground/70">
@@ -145,12 +153,12 @@ export function SyncedLyricsSection({
             </button>
           </div>
           <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
-            {syltFrame.text.map((entry, index) => (
+            {sylt.lines?.map((entry, index) => (
               <LyricEntry
                 key={index}
                 index={index}
-                text={entry[0]}
-                timestamp={entry[1]}
+                text={entry.text}
+                timestamp={entry.timestamp_ms}
                 onUpdate={handleUpdateEntry}
                 onDelete={handleDeleteEntry}
               />
