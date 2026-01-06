@@ -1,0 +1,46 @@
+{
+  "name": "vanilla-react-id3-editor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:single": "cross-env SINGLE_FILE=true npm run build",
+    "preview": "vite preview",
+    "make-pretty": "prettier --write src/"
+  },
+  "dependencies": {
+    "@vite-pwa/assets-generator": "^1.0.0",
+    "browser-id3-writer": "^6.3.1",
+    "eruda": "^3.4.3",
+    "lucide-react": "^0.556.0",
+    "music-metadata": "^11.10.3",
+    "prettier": "^3.7.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^24.10.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/uuid": "^11.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "@vitejs/plugin-react": "^5.1.2",
+    "autoprefixer": "^10.4.21",
+    "cross-env": "^10.1.0",
+    "eslint": "^9",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.16",
+    "globals": "^16.4.0",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vite": "^7.2.7",
+    "vite-plugin-pwa": "^1.0.3",
+    "vite-plugin-singlefile": "^2.3.0"
+  }
+}
