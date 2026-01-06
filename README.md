@@ -1,8 +1,5 @@
-# ID3Editor
-A powerful ID3 editor, will be the base for HTMLPlayer's one.
+# floEditor
 
-**This is a prototype!**
+A powerful metadata editor for the flo™ format.
 
-## Supported tags
-
-...continued
+...wip

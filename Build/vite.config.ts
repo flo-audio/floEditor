@@ -16,8 +16,8 @@ export default defineConfig(({ mode }) => {
         registerType: "autoUpdate",
         includeAssets: ["robots.txt"],
         manifest: {
-          name: "ID3Editor",
-          short_name: "ID3Editor",
+          name: "floEditor",
+          short_name: "floEditor",
           start_url: "./",
           display: "standalone",
           theme_color: "#00bfff",

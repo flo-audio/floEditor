@@ -1,5 +1,5 @@
 {
-  "name": "vanilla-react-id3-editor",
+  "name": "flo-editor",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,6 +11,8 @@
     "make-pretty": "prettier --write src/"
   },
   "dependencies": {
+    "@flo-audio/libflo-audio": "^0.1.2",
+    "@flo-audio/reflo": "^0.1.2",
     "@vite-pwa/assets-generator": "^1.0.0",
     "browser-id3-writer": "^6.3.1",
     "eruda": "^3.4.3",
