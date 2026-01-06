@@ -19,7 +19,7 @@ export function ProcessButton({
         <div>
           <p className="micro-label">Final step</p>
           <p className="text-base font-semibold">
-            {fileName ? `Render tags into ${fileName}` : "Load an MP3 to begin"}
+            {fileName ? `Render tags into ${fileName}` : "Load a flo™ to begin"}
           </p>
         </div>
         <button

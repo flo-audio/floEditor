@@ -1,7 +1,7 @@
 // Mirrors FloMetadata from libflo/src/core/metadata.rs
 // Enums and types use snake_case for JS compatibility
 
-export type SyncedLyricsContentType =
+type SyncedLyricsContentType =
   | "other"
   | "lyrics"
   | "text_transcription"
@@ -12,7 +12,7 @@ export type SyncedLyricsContentType =
   | "webpage_url"
   | "image_url";
 
-export type PictureType =
+type PictureType =
   | "other"
   | "file_icon"
   | "other_file_icon"
@@ -35,7 +35,7 @@ export type PictureType =
   | "band_logo"
   | "publisher_logo";
 
-export type SectionType =
+type SectionType =
   | "intro"
   | "verse"
   | "pre_chorus"
@@ -51,7 +51,7 @@ export type SectionType =
   | "silence"
   | "other";
 
-export type CoverVariantType =
+type CoverVariantType =
   | "standard"
   | "explicit"
   | "clean"
@@ -63,92 +63,92 @@ export type CoverVariantType =
   | "digital"
   | "other";
 
-export interface UserUrl {
+interface UserUrl {
   description: string;
   url: string;
 }
 
-export interface Comment {
+interface Comment {
   language?: string;
   description?: string;
   text: string;
 }
 
-export interface Lyrics {
+interface Lyrics {
   language?: string;
   description?: string;
   text: string;
 }
 
-export interface SyncedLyricsLine {
+interface SyncedLyricsLine {
   text: string;
   timestamp_ms: number;
 }
 
-export interface SyncedLyrics {
+interface SyncedLyrics {
   language?: string;
   content_type: SyncedLyricsContentType;
   description?: string;
   lines: SyncedLyricsLine[];
 }
 
-export interface Picture {
+interface Picture {
   mime_type: string;
   picture_type: PictureType;
   description?: string;
   data: Uint8Array;
 }
 
-export interface UserText {
+interface UserText {
   description: string;
   value: string;
 }
 
-export interface Popularimeter {
+interface Popularimeter {
   email?: string;
   rating: number;
   play_count?: number;
 }
 
-export interface WaveformData {
+interface WaveformData {
   peaks_per_second: number;
   peaks: number[];
   channels: number;
 }
 
-export interface BpmChange {
+interface BpmChange {
   timestamp_ms: number;
   bpm: number;
 }
 
-export interface KeyChange {
+interface KeyChange {
   timestamp_ms: number;
   key: string;
 }
 
-export interface LoudnessPoint {
+interface LoudnessPoint {
   timestamp_ms: number;
   lufs: number;
 }
 
-export interface SectionMarker {
+interface SectionMarker {
   timestamp_ms: number;
   section_type: SectionType;
   label?: string;
 }
 
-export interface CreatorNote {
+interface CreatorNote {
   timestamp_ms?: number;
   text: string;
 }
 
-export interface CollaborationCredit {
+interface CollaborationCredit {
   role: string;
   name: string;
   timestamp_ms?: number;
 }
 
-export interface RemixChainEntry {
+interface RemixChainEntry {
   title: string;
   artist: string;
   year?: number;
@@ -156,21 +156,21 @@ export interface RemixChainEntry {
   relationship: string;
 }
 
-export interface AnimatedCover {
+interface AnimatedCover {
   mime_type: string;
   data: Uint8Array;
   duration_ms?: number;
   loop_count?: number;
 }
 
-export interface CoverVariant {
+interface CoverVariant {
   variant_type: CoverVariantType;
   mime_type: string;
   data: Uint8Array;
   description?: string;
 }
 
-export interface FloMetadata {
+interface FloMetadata {
   // IDENTIFICATION (ID3v2.4 compatible)
   title?: string;
   subtitle?: string;
@@ -239,7 +239,7 @@ export interface FloMetadata {
 
   // COMPLEX FRAMES
   comments: Comment[];
-  lyrics: Lyrics[];
+  lyrics: Lyrics[]; // For unsynced lyrics
   synced_lyrics: SyncedLyrics[];
   pictures: Picture[];
   user_text: UserText[];
@@ -272,4 +272,12 @@ export interface FloMetadata {
   flo_encoder_version?: string;
   source_format?: string;
   custom: Record<string, any>; // JSON value
+}
+
+interface SYLTFrame {
+  type: number;
+  text: [string, number][];
+  timestampFormat: number;
+  language: string;
+  description: string;
 }

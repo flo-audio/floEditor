@@ -7,24 +7,32 @@ import { SyncedLyricsSection } from "./SyncedLyrics";
 import { ProcessButton } from "./Process";
 import { AlertMessage } from "./Alert";
 import { ThemeToggle } from "./ThemeToggle";
-import { useID3Processor } from "../hooks/useID3Processor";
+import { useFloProcessor, DEFAULT_METADATA, DEFAULT_SYLT_FRAME } from "../hooks/useFloProcessor";
+import { useFloLoader } from "../hooks/useFloLoader";
 import { useLRCParser } from "../hooks/useLRCParser";
-import { useID3Loader, DEFAULT_SYLT_FRAME } from "../hooks/useID3Loader";
 
 export default function App() {
   const [file, setFile] = useState<File | null>(null);
-  const [tags, setTags] = useState<ID3Tags>({});
+  const [originalFileBytes, setOriginalFileBytes] = useState<Uint8Array | null>(
+    null
+  );
+  const [metadata, setMetadata] = useState<FloMetadata>(() => ({
+    ...DEFAULT_METADATA,
+  })); // Use reset function
   const [albumArtUrl, setAlbumArtUrl] = useState<string | null>(null);
-  const [syltFrame, setSyltFrame] = useState<SYLTFrame>(() => ({ ...DEFAULT_SYLT_FRAME }));
+  const [syltFrame, setSyltFrame] = useState<SYLTFrame>(() => ({
+    ...DEFAULT_SYLT_FRAME,
+  }));
   const [lrcText, setLrcText] = useState<string>("");
   const [showEruda, setShowEruda] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [metadataSummary, setMetadataSummary] = useState("");
 
-  const { isProcessing, processFile } = useID3Processor();
+  const { isProcessing, updateMetadata, downloadFile, resetMetadata } =
+    useFloProcessor(); // Updated
   const { parseLRCFormat } = useLRCParser();
-  const { isLoading: isReadingMetadata, loadMetadata } = useID3Loader();
+  const { isLoading: isReadingMetadata, loadFloFile } = useFloLoader(); // Updated
   const activeFileSignature = useRef("");
 
   const buildFileSignature = useCallback(
@@ -46,7 +54,8 @@ export default function App() {
       if (!uploadedFile) {
         activeFileSignature.current = "";
         setFile(null);
-        setTags({});
+        setOriginalFileBytes(null);
+        setMetadata(resetMetadata()); // Use reset function
         setAlbumArtUrl(null);
         setSyltFrame({ ...DEFAULT_SYLT_FRAME });
         setLrcText("");
@@ -56,13 +65,10 @@ export default function App() {
         return;
       }
 
-      const acceptsMp3 =
-        uploadedFile.type === "audio/mpeg" ||
-        uploadedFile.type === "audio/mp3" ||
-        uploadedFile.name.toLowerCase().endsWith(".mp3");
+      const acceptsFlo = uploadedFile.name.toLowerCase().endsWith(".flo");
 
-      if (!acceptsMp3) {
-        setError("Please upload a valid MP3 file");
+      if (!acceptsFlo) {
+        setError("Please upload a valid .flo file");
         setSuccess(null);
         return;
       }
@@ -74,32 +80,68 @@ export default function App() {
       setError(null);
       setSuccess("File loaded. Reading embedded tags...");
       setMetadataSummary("Scanning embedded metadata...");
-      setTags({});
+      setMetadata(resetMetadata()); // Reset
       setAlbumArtUrl(null);
       setSyltFrame({ ...DEFAULT_SYLT_FRAME });
       setLrcText("");
 
       try {
-        const { tags: parsedTags, albumArtUrl: parsedAlbumArt, syltFrame: parsedSylt } = await loadMetadata(
-          uploadedFile
-        );
+        const {
+          metadata: parsedMetadata,
+          audioInfo,
+          error: loadError,
+        } = await loadFloFile(uploadedFile);
 
         if (activeFileSignature.current !== signature) {
           return;
         }
 
-        setTags(parsedTags);
-        setAlbumArtUrl(parsedAlbumArt);
-        if (parsedSylt) {
-          setSyltFrame({ ...DEFAULT_SYLT_FRAME, ...parsedSylt });
+        if (loadError) {
+          setError(loadError);
+          setSuccess(null);
+          return;
         }
 
-        const importedFieldCount = Object.values(parsedTags).filter(
+        const arrayBuffer = await uploadedFile.arrayBuffer();
+        setOriginalFileBytes(new Uint8Array(arrayBuffer));
+
+        if (parsedMetadata) {
+          setMetadata({ ...parsedMetadata });
+          // Extract album art from pictures if present
+          if (parsedMetadata && parsedMetadata.pictures) {
+            const coverPic = parsedMetadata.pictures.find(
+              (p) => p.picture_type === "cover_front"
+            );
+            if (coverPic) {
+              const blob = new Blob([coverPic.data], {
+                type: coverPic.mime_type,
+              });
+              setAlbumArtUrl(URL.createObjectURL(blob));
+            }
+          }
+
+          // Extract synced lyrics if present
+          if (parsedMetadata && parsedMetadata.synced_lyrics) {
+            const firstSylt = parsedMetadata.synced_lyrics[0];
+            if (firstSylt) {
+              setSyltFrame({
+                type: 1,
+                timestampFormat: 2,
+                language: firstSylt.language || "eng",
+                description: firstSylt.description || "Synced Lyrics",
+                text: firstSylt.lines.map((l) => [l.text, l.timestamp_ms]),
+              });
+            }
+          }
+        }
+
+        const importedFieldCount = Object.values(parsedMetadata || {}).filter(
           (value) => typeof value === "string" && value.trim().length > 0
         ).length;
-        const importedLyrics = parsedSylt?.text.length ?? 0;
+        const importedLyrics =
+          parsedMetadata?.synced_lyrics?.[0]?.lines.length ?? 0;
         const hasImportedData =
-          importedFieldCount > 0 || Boolean(parsedAlbumArt) || (parsedSylt && importedLyrics > 0);
+          importedFieldCount > 0 || Boolean(audioInfo) || importedLyrics > 0;
 
         setMetadataSummary(
           importedFieldCount > 0
@@ -118,28 +160,34 @@ export default function App() {
         }
         console.error("Failed to parse metadata", loaderErr);
         setMetadataSummary("");
-        setError("Loaded file, but could not read embedded metadata automatically.");
+        setError(
+          "Loaded file, but could not read embedded metadata automatically."
+        );
         setSuccess(null);
       }
     },
-    [loadMetadata, buildFileSignature]
+    [loadFloFile, buildFileSignature, resetMetadata]
   );
 
-  const handleTagChange = (field: keyof ID3Tags, value: string) => {
-    setTags((prev) => ({ ...prev, [field]: value }));
+  const handleMetadataChange = (field: keyof FloMetadata, value: any) => {
+    setMetadata((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleLRCImport = () => {
     if (lrcText.trim()) {
       const entries = parseLRCFormat(lrcText);
       setSyltFrame((prev) => ({ ...prev, text: entries }));
-      if (!tags.unsyncedLyrics || tags.unsyncedLyrics.trim().length === 0) {
+      if (!metadata.lyrics || metadata.lyrics.length === 0) {
+        // Use lyrics for unsynced
         const derivedLyrics = entries
           .map(([line]) => line?.trim())
           .filter(Boolean)
           .join("\n");
         if (derivedLyrics) {
-          setTags((prev) => ({ ...prev, unsyncedLyrics: derivedLyrics }));
+          setMetadata((prev) => ({
+            ...prev,
+            lyrics: [{ text: derivedLyrics }],
+          }));
         }
       }
       setLrcText("");
@@ -148,32 +196,58 @@ export default function App() {
   };
 
   const handleProcess = async () => {
-    if (!file) return;
+    if (!file || !originalFileBytes) return;
 
     setError(null);
     setSuccess(null);
 
-    const result = await processFile(file, tags, syltFrame, albumArtUrl);
-    if (result.success) {
-      setSuccess(result.message);
+    const updatedFile = await updateMetadata(originalFileBytes, metadata);
+    if (updatedFile) {
+      downloadFile(
+        updatedFile,
+        `${metadata.title || file.name.replace(".flo", "")}_tagged.flo`
+      );
+      setSuccess("File processed and downloaded successfully!");
     } else {
-      setError(result.message);
+      setError("Failed to process file");
     }
   };
 
   const handleSYLTChange = (updatedText: [string, number][]) => {
     setSyltFrame((prev) => ({ ...prev, text: updatedText }));
+    // Update metadata synced_lyrics
+    const syncedLyrics = metadata.synced_lyrics.slice();
+    if (syncedLyrics.length === 0) {
+      syncedLyrics.push({
+        content_type: "lyrics",
+        lines: updatedText.map(([text, timestamp_ms]) => ({
+          text,
+          timestamp_ms,
+        })),
+      });
+    } else {
+      syncedLyrics[0].lines = updatedText.map(([text, timestamp_ms]) => ({
+        text,
+        timestamp_ms,
+      }));
+    }
+    setMetadata((prev) => ({ ...prev, synced_lyrics: syncedLyrics }));
   };
 
   const handleSYLTMetadataChange = (
     field: "language" | "description",
-    value: string,
+    value: string
   ) => {
     setSyltFrame((prev) => ({ ...prev, [field]: value }));
+    const syncedLyrics = metadata.synced_lyrics.slice();
+    if (syncedLyrics.length > 0) {
+      (syncedLyrics[0] as any)[field] = value;
+      setMetadata((prev) => ({ ...prev, synced_lyrics: syncedLyrics }));
+    }
   };
 
-  const populatedFields = Object.values(tags).filter(
-    (value) => typeof value === "string" && value.trim().length > 0,
+  const populatedFields = Object.values(metadata).filter(
+    (value) => typeof value === "string" && value.trim().length > 0
   ).length;
   const sessionStats = [
     {
@@ -216,12 +290,12 @@ export default function App() {
                 <div>
                   <h1 className="text-3xl font-semibold hero-title">
                     <span className="gradient-text inline-block">
-                      ID3Editor
+                      FloEditor
                     </span>
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    Tag MP3s, embed art, and sync lyrics without leaving your
-                    browser.
+                    Tag flo™ files, embed art, and sync lyrics without leaving
+                    your browser.
                   </p>
                 </div>
               </div>
@@ -239,7 +313,7 @@ export default function App() {
                 <p className="text-xs text-muted-foreground">
                   {file
                     ? "Ready for metadata tweaks."
-                    : "Load an MP3 to unlock controls."}
+                    : "Load a flo™ to unlock controls."}
                 </p>
               </div>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
@@ -294,7 +368,10 @@ export default function App() {
         </section>
 
         {/* Basic Tags */}
-        <BasicTagsSection tags={tags} onTagChange={handleTagChange} />
+        <BasicTagsSection
+          metadata={metadata}
+          onMetadataChange={handleMetadataChange}
+        />
 
         {/* Album Art */}
         <AlbumArtSection
@@ -310,9 +387,9 @@ export default function App() {
           lrcText={lrcText}
           onLrcTextChange={setLrcText}
           onImport={handleLRCImport}
-          unsyncedLyrics={tags.unsyncedLyrics || ""}
+          unsyncedLyrics={metadata.lyrics?.[0]?.text || ""} // Use lyrics
           onUnsyncedLyricsChange={(value) =>
-            handleTagChange("unsyncedLyrics", value)
+            handleMetadataChange("lyrics", value ? [{ text: value }] : [])
           }
         />
 

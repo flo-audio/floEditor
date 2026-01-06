@@ -5,12 +5,52 @@ import init, {
   update_metadata,
   validate,
 } from "@flo-audio/libflo-audio";
-import { FloMetadata } from "../types/floTypes";
 
-interface ProcessResult {
-  success: boolean;
-  message: string;
-}
+export const DEFAULT_SYLT_FRAME: SYLTFrame = {
+    type: 1,
+    text: [],
+    timestampFormat: 2,
+    language: "eng",
+    description: "Synced Lyrics",
+  };
+export const DEFAULT_METADATA: FloMetadata = {
+  title: "",
+  artist: "",
+  album: "",
+  album_artist: "",
+  year: undefined,
+  genre: "",
+  track_number: undefined,
+  track_total: undefined,
+  disc_number: undefined,
+  disc_total: undefined,
+  composer: "",
+  lyricist: "",
+  publisher: "",
+  copyright: "",
+  bpm: undefined,
+  key: "",
+  mood: "",
+  isrc: "",
+  encoded_by: "",
+  involved_people: [],
+  musician_credits: [],
+  comments: [],
+  lyrics: [],
+  synced_lyrics: [],
+  pictures: [],
+  user_text: [],
+  user_urls: [],
+  bpm_map: [],
+  key_changes: [],
+  loudness_profile: [],
+  section_markers: [],
+  creator_notes: [],
+  collaboration_credits: [],
+  remix_chain: [],
+  cover_variants: [],
+  custom: {},
+};
 
 export function useFloProcessor() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -78,6 +118,8 @@ export function useFloProcessor() {
     return validate(data);
   };
 
+  const resetMetadata = (): FloMetadata => ({ ...DEFAULT_METADATA });
+
   return {
     isProcessing,
     isInitialized,
@@ -85,5 +127,6 @@ export function useFloProcessor() {
     updateMetadata,
     downloadFile,
     validateFile,
+    resetMetadata,
   };
 }

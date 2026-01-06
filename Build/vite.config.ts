@@ -3,6 +3,9 @@ import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import { viteSingleFile } from "vite-plugin-singlefile";
 
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
+
 export default defineConfig(({ mode }) => {
   // Load environment variables
   const env = loadEnv(mode, process.cwd(), "");
@@ -12,6 +15,8 @@ export default defineConfig(({ mode }) => {
     base: "./",
     plugins: [
       react(),
+      wasm(),
+      topLevelAwait(),
       VitePWA({
         registerType: "autoUpdate",
         includeAssets: ["robots.txt"],
@@ -48,6 +53,11 @@ export default defineConfig(({ mode }) => {
       // Conditionally add the single file plugin
       isSingleFile && viteSingleFile(),
     ].filter(Boolean), // Removes 'false' values if not in single-file mode
+    
+    optimizeDeps: {
+      exclude: ["@flo-audio/libflo-audio", "@flo-audio/reflo"],
+    },
+    
     build: {
       sourcemap: true,
       outDir: "./dist",

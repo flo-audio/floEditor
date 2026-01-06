@@ -19,9 +19,9 @@ export function FileUploadSection({
 
   return (
     <div className="space-y-3">
-      <label className="micro-label">Upload MP3 File</label>
+      <label className="micro-label">Upload flo™ File</label>
       <label
-        className="group flex flex-wrap items-center justify-between gap-4 rounded-xl border border-dashed border-primary/30 bg-primary/5 px-4 py-4 text-sm shadow-sm transition hover:-translate-y-0.5 hover:border-primary/60 cursor-pointer"
+        className="group flex flex-wrap items-center justify-between gap-4 rounded-xl border border-dashed border-primary/30 bg-primary/5 px-4 py-4 text-sm shadow-sm transition hover:-translate-y-0.5 hover:bg-primary/10"
         aria-busy={isParsingMetadata}
       >
         <div className="flex items-center gap-3">
@@ -29,7 +29,7 @@ export function FileUploadSection({
             <FileText className="h-4 w-4 icon-accent" />
           </div>
           <div>
-            <p className="font-semibold">Drop or browse your MP3</p>
+            <p className="font-semibold">Drop or browse your .flo file</p>
             <p className="text-xs text-muted-foreground">
               All metadata editing happens locally.
             </p>
@@ -45,7 +45,7 @@ export function FileUploadSection({
         </span>
         <input
           type="file"
-          accept="audio/mpeg,audio/mp3"
+          accept=".flo"
           onChange={handleChange}
           className="sr-only"
         />
