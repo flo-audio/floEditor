@@ -17,47 +17,48 @@ export default defineConfig(({ mode }) => {
       react(),
       wasm(),
       topLevelAwait(),
-      VitePWA({
-        registerType: "autoUpdate",
-        includeAssets: ["robots.txt"],
-        manifest: {
-          name: "floEditor",
-          short_name: "floEditor",
-          start_url: "./",
-          display: "standalone",
-          theme_color: "#00bfff",
-          background_color: "#00bfff",
-        },
-        pwaAssets: {
-          image: "public/source-image.png",
-          preset: "minimal-2023",
-          includeHtmlHeadLinks: true,
-        },
-        workbox: {
-          // Ensure index.html is cached even when inlined
-          globPatterns: ["**/*.{js,css,html,png,ico,json}"],
-          runtimeCaching: [
-            {
-              urlPattern: /.*\.(js|css|html)$/,
-              handler: "NetworkFirst",
-              options: { cacheName: "app-shell" },
-            },
-            {
-              urlPattern: /.*\.(png|ico|json)$/,
-              handler: "CacheFirst",
-              options: { cacheName: "assets" },
-            },
-          ],
-        },
-      }),
+      !isSingleFile &&
+        VitePWA({
+          registerType: "autoUpdate",
+          includeAssets: ["robots.txt"],
+          manifest: {
+            name: "floEditor",
+            short_name: "floEditor",
+            start_url: "./",
+            display: "standalone",
+            theme_color: "#00bfff",
+            background_color: "#00bfff",
+          },
+          pwaAssets: {
+            image: "public/source-image.png",
+            preset: "minimal-2023",
+            includeHtmlHeadLinks: true,
+          },
+          workbox: {
+            // Ensure index.html is cached even when inlined
+            globPatterns: ["**/*.{js,css,html,png,ico,json}"],
+            runtimeCaching: [
+              {
+                urlPattern: /.*\.(js|css|html)$/,
+                handler: "NetworkFirst",
+                options: { cacheName: "app-shell" },
+              },
+              {
+                urlPattern: /.*\.(png|ico|json)$/,
+                handler: "CacheFirst",
+                options: { cacheName: "assets" },
+              },
+            ],
+          },
+        }),
       // Conditionally add the single file plugin
       isSingleFile && viteSingleFile(),
     ].filter(Boolean), // Removes 'false' values if not in single-file mode
-    
+
     optimizeDeps: {
       exclude: ["@flo-audio/libflo-audio", "@flo-audio/reflo"],
     },
-    
+
     build: {
       sourcemap: true,
       outDir: "./dist",
