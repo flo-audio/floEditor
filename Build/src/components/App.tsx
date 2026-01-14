@@ -259,7 +259,7 @@ export default function App() {
                 <div>
                   <h1 className="text-3xl font-semibold hero-title">
                     <span className="gradient-text inline-block">
-                      FloEditor
+                      floEditor
                     </span>
                   </h1>
                   <p className="text-sm text-muted-foreground">
