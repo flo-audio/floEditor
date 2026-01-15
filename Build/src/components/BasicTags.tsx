@@ -77,7 +77,7 @@ export function BasicTagsSection({
   onMetadataChange,
 }: BasicTagsSectionProps) {
   const populatedFields = Object.values(metadata).filter(
-    (value) => typeof value === "string" && value.trim().length > 0
+    (value) => typeof value === "string" && value.trim().length > 0,
   ).length;
   const totalFields =
     ESSENTIALS.length +
@@ -115,7 +115,7 @@ export function BasicTagsSection({
               key,
               type === "number"
                 ? parseInt(e.target.value) || undefined
-                : e.target.value
+                : e.target.value,
             )
           }
           placeholder={placeholder}
