@@ -15,6 +15,7 @@ import { useLRCParser } from "../hooks/useLRCParser";
 import { DEFAULT_METADATA, DEFAULT_SYLT_FRAME } from "../utils/constants";
 import { WaveformSection, generateWaveformData } from "./Waveform";
 import { KeyChangesSection } from "./KeyChanges";
+import { PopularimeterSection } from "./Popularimeter";
 
 export default function App() {
   const [file, setFile] = useState<File | null>(null);
@@ -225,6 +226,23 @@ export default function App() {
     setMetadata((prev) => ({ ...prev, [field]: value }));
   };
 
+  function handlePopularimeterChange(
+    field: "email" | "rating" | "play_count",
+    value: any
+  ) {
+    setMetadata((prev) => ({
+      ...prev,
+      popularimeter: {
+        email: field === "email" ? value : (prev.popularimeter?.email ?? ""),
+        rating: field === "rating" ? value : (prev.popularimeter?.rating ?? 0),
+        play_count:
+          field === "play_count"
+            ? value
+            : (prev.popularimeter?.play_count ?? 0),
+      },
+    }));
+  }
+
   const handleLRCImport = () => {
     if (lrcText.trim()) {
       const entries = parseLRCFormat(lrcText);
@@ -399,6 +417,16 @@ export default function App() {
         <BasicTagsSection
           metadata={metadata}
           onMetadataChange={handleMetadataChange}
+        />
+
+        {/* Popularimeter */}
+        <PopularimeterSection
+          popularimeter={{
+            email: metadata.popularimeter?.email ?? "",
+            rating: metadata.popularimeter?.rating ?? 0,
+            play_count: metadata.popularimeter?.play_count ?? 0,
+          }}
+          onChange={handlePopularimeterChange}
         />
 
         {/* Artwork */}
