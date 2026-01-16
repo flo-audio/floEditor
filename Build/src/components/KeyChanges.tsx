@@ -38,7 +38,7 @@ export function KeyChangesSection({
   };
 
   const sorted = [...keyChanges].sort(
-    (a, b) => a.timestamp_ms - b.timestamp_ms
+    (a, b) => a.timestamp_ms - b.timestamp_ms,
   );
 
   return (
@@ -81,7 +81,7 @@ export function KeyChangesSection({
                     (c, i) =>
                       `${formatTime(c.timestamp_ms)} → ${c.key || "?"}${
                         i < sorted.length - 1 ? ", " : ""
-                      }`
+                      }`,
                   )
                   .join("")}
               </span>
@@ -100,7 +100,7 @@ export function KeyChangesSection({
                       handleUpdate(
                         index,
                         "timestamp_ms",
-                        Math.max(0, parseInt(e.target.value) || 0)
+                        Math.max(0, parseInt(e.target.value) || 0),
                       )
                     }
                     placeholder="ms"

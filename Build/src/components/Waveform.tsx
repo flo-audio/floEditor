@@ -11,7 +11,7 @@ export function generateWaveformData(
   samples: Float32Array,
   sampleRate: number,
   channels: number,
-  peaksPerSecond: number = 50
+  peaksPerSecond: number = 50,
 ): WaveformData {
   const segmentLen = Math.floor(sampleRate / peaksPerSecond);
   const totalSegments = Math.floor(samples.length / (segmentLen * channels));
