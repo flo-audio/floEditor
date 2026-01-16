@@ -13,12 +13,14 @@ import { useFloProcessor } from "../hooks/useFloProcessor";
 import { useFloLoader } from "../hooks/useFloLoader";
 import { useLRCParser } from "../hooks/useLRCParser";
 import { DEFAULT_METADATA, DEFAULT_SYLT_FRAME } from "../utils/constants";
+import { WaveformSection, generateWaveformData } from "./Waveform";
 
 export default function App() {
   const [file, setFile] = useState<File | null>(null);
   const [originalFileBytes, setOriginalFileBytes] = useState<Uint8Array | null>(
     null,
   );
+  const [audioInfo, setAudioInfo] = useState<any | null>(null); // <- keep audioInfo for waveform
   const [metadata, setMetadata] = useState<FloMetadata>(() => ({
     ...DEFAULT_METADATA,
   }));
@@ -52,6 +54,25 @@ export default function App() {
     }
   }, [showEruda]);
 
+  const handleRegenerateWaveform = useCallback(async () => {
+    if (!originalFileBytes || !audioInfo) return;
+    try {
+      // Lazy-load decode from WASM only when needed
+      const lib = await import("@flo-audio/libflo-audio");
+      // Decode samples
+      const samples: Float32Array = await lib.decode(originalFileBytes);
+      const wf = generateWaveformData(
+        samples,
+        audioInfo.sample_rate,
+        audioInfo.channels,
+      );
+      setMetadata((prev) => ({ ...prev, waveform_data: wf }));
+      setSuccess("Waveform re-generated from audio data.");
+    } catch (err) {
+      setError("Could not re-generate waveform.");
+    }
+  }, [originalFileBytes, audioInfo]);
+
   const handleFileUpload = useCallback(
     async (uploadedFile: File | null) => {
       if (!uploadedFile) {
@@ -65,6 +86,7 @@ export default function App() {
         setMetadataSummary("");
         setSuccess(null);
         setError(null);
+        setAudioInfo(null);
         return;
       }
 
@@ -87,11 +109,12 @@ export default function App() {
       setAlbumArtUrl(null);
       setSyltFrame({ ...DEFAULT_SYLT_FRAME });
       setLrcText("");
+      setAudioInfo(null);
 
       try {
         const {
           metadata: parsedMetadata,
-          audioInfo,
+          audioInfo: newAudioInfo,
           error: loadError,
         } = await loadFloFile(uploadedFile);
 
@@ -106,52 +129,76 @@ export default function App() {
         }
 
         const arrayBuffer = await uploadedFile.arrayBuffer();
-        setOriginalFileBytes(new Uint8Array(arrayBuffer));
+        const fileBytes = new Uint8Array(arrayBuffer);
+        setOriginalFileBytes(fileBytes);
 
-        if (parsedMetadata) {
-          setMetadata({ ...parsedMetadata });
-          // Extract album art from pictures if present
-          if (parsedMetadata.pictures) {
-            const coverPic = parsedMetadata.pictures.find(
-              (p) => p.picture_type === "cover_front",
+        setAudioInfo(newAudioInfo || null);
+
+        let nextMetadata: FloMetadata = parsedMetadata
+          ? { ...parsedMetadata }
+          : { ...DEFAULT_METADATA };
+
+        // Check/generate waveform_data
+        if (
+          (!nextMetadata.waveform_data ||
+            !nextMetadata.waveform_data.peaks?.length) &&
+          newAudioInfo
+        ) {
+          try {
+            const lib = await import("@flo-audio/libflo-audio");
+            const samples: Float32Array = await lib.decode(fileBytes);
+            nextMetadata.waveform_data = generateWaveformData(
+              samples,
+              newAudioInfo.sample_rate,
+              newAudioInfo.channels,
             );
-            if (coverPic) {
-              const blob = new Blob([coverPic.data], {
-                type: coverPic.mime_type,
-              });
-              setAlbumArtUrl(URL.createObjectURL(blob));
-            }
-          }
-          // Extract synced lyrics if present
-          if (
-            parsedMetadata.synced_lyrics &&
-            parsedMetadata.synced_lyrics.length > 0
-          ) {
-            const firstSylt = parsedMetadata.synced_lyrics[0];
-            setSyltFrame({
-              type: 1,
-              timestampFormat: 2,
-              language: firstSylt.language || "eng",
-              description: firstSylt.description || "Synced Lyrics",
-              text: firstSylt.lines.map((l) => [l.text, l.timestamp_ms]),
-            });
+          } catch (err) {
+            // Optionally setError or no-op
           }
         }
 
-        const importedFieldCount = Object.values(parsedMetadata || {}).filter(
+        setMetadata(nextMetadata);
+
+        // Extract album art from pictures if present
+        if (nextMetadata.pictures) {
+          const coverPic = nextMetadata.pictures.find(
+            (p) => p.picture_type === "cover_front",
+          );
+          if (coverPic) {
+            const blob = new Blob([coverPic.data], {
+              type: coverPic.mime_type,
+            });
+            setAlbumArtUrl(URL.createObjectURL(blob));
+          }
+        }
+        // Extract synced lyrics if present
+        if (
+          nextMetadata.synced_lyrics &&
+          nextMetadata.synced_lyrics.length > 0
+        ) {
+          const firstSylt = nextMetadata.synced_lyrics[0];
+          setSyltFrame({
+            type: 1,
+            timestampFormat: 2,
+            language: firstSylt.language || "eng",
+            description: firstSylt.description || "Synced Lyrics",
+            text: firstSylt.lines.map((l) => [l.text, l.timestamp_ms]),
+          });
+        }
+
+        const importedFieldCount = Object.values(nextMetadata || {}).filter(
           (value) => typeof value === "string" && value.trim().length > 0,
         ).length;
         const importedLyrics =
-          parsedMetadata?.synced_lyrics?.[0]?.lines.length ?? 0;
+          nextMetadata?.synced_lyrics?.[0]?.lines.length ?? 0;
         const hasImportedData =
-          importedFieldCount > 0 || Boolean(audioInfo) || importedLyrics > 0;
+          importedFieldCount > 0 || Boolean(newAudioInfo) || importedLyrics > 0;
 
         setMetadataSummary(
           importedFieldCount > 0
             ? `Imported ${importedFieldCount} embedded tag${importedFieldCount === 1 ? "" : "s"}.`
             : "No embedded tags found.",
         );
-
         setSuccess(
           hasImportedData
             ? "Existing metadata imported. Continue editing below."
@@ -167,6 +214,7 @@ export default function App() {
           "Loaded file, but could not read embedded metadata automatically.",
         );
         setSuccess(null);
+        setAudioInfo(null);
       }
     },
     [loadFloFile, buildFileSignature, resetMetadata],
@@ -335,6 +383,16 @@ export default function App() {
             ))}
           </div>
         </section>
+
+        {/* Waveform Visualization */}
+        <WaveformSection
+          waveform={metadata.waveform_data}
+          onRegenerate={
+            originalFileBytes && audioInfo
+              ? handleRegenerateWaveform
+              : undefined
+          }
+        />
 
         {/* Basic Tags */}
         <BasicTagsSection
