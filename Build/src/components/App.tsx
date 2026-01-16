@@ -6,6 +6,11 @@ import { ArtworkSection } from "./Artwork";
 import { SyncedLyricsSection } from "./SyncedLyrics";
 import { SectionMarkersSection } from "./SectionMarkers";
 import { BpmMapSection } from "./BpmMap";
+import { KeyChangesSection } from "./KeyChanges";
+import { PopularimeterSection } from "./Popularimeter";
+import { UserTextSection } from "./UserText";
+import { CreatorNotesSection } from "./CreatorNotes";
+import { CollaborationCreditsSection } from "./CollaborationCredits";
 import { ProcessButton } from "./Process";
 import { AlertMessage } from "./Alert";
 import { ThemeToggle } from "./ThemeToggle";
@@ -14,8 +19,6 @@ import { useFloLoader } from "../hooks/useFloLoader";
 import { useLRCParser } from "../hooks/useLRCParser";
 import { DEFAULT_METADATA, DEFAULT_SYLT_FRAME } from "../utils/constants";
 import { WaveformSection, generateWaveformData } from "./Waveform";
-import { KeyChangesSection } from "./KeyChanges";
-import { PopularimeterSection } from "./Popularimeter";
 
 export default function App() {
   const [file, setFile] = useState<File | null>(null);
@@ -496,6 +499,28 @@ export default function App() {
           onKeyChangesChange={(keyChanges) =>
             handleMetadataChange("key_changes", keyChanges)
           }
+        />
+
+        {/* Creator Notes */}
+        <CreatorNotesSection
+          creatorNotes={metadata.creator_notes ?? []}
+          onCreatorNotesChange={(list) =>
+            handleMetadataChange("creator_notes", list)
+          }
+        />
+
+        {/* Collaboration Credits */}
+        <CollaborationCreditsSection
+          collaborationCredits={metadata.collaboration_credits ?? []}
+          onCollaborationCreditsChange={(list) =>
+            handleMetadataChange("collaboration_credits", list)
+          }
+        />
+
+        {/* Custom Metadata */}
+        <UserTextSection
+          userText={metadata.user_text ?? []}
+          onUserTextChange={(list) => handleMetadataChange("user_text", list)}
         />
 
         {/* Process Button */}
