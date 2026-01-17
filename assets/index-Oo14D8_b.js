@@ -12697,7 +12697,7 @@ ${c.stack}` : r;
       ...ri
     })), Ce = ht.useRef(""), { isLoading: Se, loadFloFile: Zt } = Vg(), { parseLRCFormat: Ve } = Kg();
     ht.useEffect(() => {
-      typeof window < "u" && _ && Rs(() => import("./eruda-BH0aMfP5.js").then((E) => E.e), [], import.meta.url).then((E) => {
+      typeof window < "u" && _ && Rs(() => import("./eruda-CPlRGLW0.js").then((E) => E.e), [], import.meta.url).then((E) => {
         E.default.init(), E.default.show();
       });
     }, [
