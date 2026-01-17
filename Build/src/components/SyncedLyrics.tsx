@@ -41,7 +41,7 @@ export function SyncedLyricsSection({
   const handleUpdateEntry = (
     index: number,
     text: string,
-    timestamp: number
+    timestamp: number,
   ) => {
     const updated = [...syncedLyrics];
     if (updated.length > 0) {

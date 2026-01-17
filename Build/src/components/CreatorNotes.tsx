@@ -24,7 +24,7 @@ export function CreatorNotesSection({
   const handleUpdate = (
     index: number,
     field: keyof CreatorNote,
-    value: any
+    value: any,
   ) => {
     const updated = [...creatorNotes];
     updated[index] = { ...updated[index], [field]: value };
@@ -87,7 +87,7 @@ export function CreatorNotesSection({
                     "timestamp_ms",
                     e.target.value === ""
                       ? undefined
-                      : Math.max(0, parseInt(e.target.value || "0"))
+                      : Math.max(0, parseInt(e.target.value || "0")),
                   )
                 }
                 placeholder="ms"
