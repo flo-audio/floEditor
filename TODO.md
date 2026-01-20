@@ -9,11 +9,7 @@
 - [ ] `set_subtitle`
 - [ ] `original_artist`
 - [ ] `original_lyricist`
-- [ ] `original_filename`
 - [ ] `playlist_delay`
-- [ ] `encoder_settings`
-- [ ] `source_format`
-- [ ] `flo_encoder_version`
 
 ### INVOLVED PEOPLE / CREDITS
 - [ ] `involved_people` (array of [role, name])
@@ -58,3 +54,13 @@
 - [ ] Some `PictureType` and `SectionType` options exist in Rust but are not accessible in the UI
   - [ ] “bright_coloured_fish”, ”video_screen_capture”, 
   - [ ] Section markers like “breakdown”, “drop”, “instrumental”, “silence”, “other”
+
+## Done
+
+- [X?] `encoder_settings`
+- [X?] `flo_encoder_version`
+- [X?] `source_format`
+- [X?] `original_filename`
+  - These are meant to be encoder/decoder (or more likely reflo-side) tags and should not be user editable
+  - But maybe viewable?
+    - If so, also include `Encoded By` in this
