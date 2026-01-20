@@ -19,6 +19,8 @@ import { useFloLoader } from "../hooks/useFloLoader";
 import { useLRCParser } from "../hooks/useLRCParser";
 import { DEFAULT_METADATA, DEFAULT_SYLT_FRAME } from "../utils/constants";
 import { WaveformSection, generateWaveformData } from "./Waveform";
+import { AdvancedTagsSection } from "./AdvancedTags";
+import { ViewInfo } from "./ViewInfo";
 
 export default function App() {
   const [file, setFile] = useState<File | null>(null);
@@ -420,6 +422,8 @@ export default function App() {
           </div>
         </section>
 
+        <ViewInfo metadata={metadata} />
+
         {/* Waveform Visualization */}
         <WaveformSection
           waveform={metadata.waveform_data}
@@ -432,6 +436,12 @@ export default function App() {
 
         {/* Basic Tags */}
         <BasicTagsSection
+          metadata={metadata}
+          onMetadataChange={handleMetadataChange}
+        />
+
+        {/* Advanced Tags */}
+        <AdvancedTagsSection
           metadata={metadata}
           onMetadataChange={handleMetadataChange}
         />

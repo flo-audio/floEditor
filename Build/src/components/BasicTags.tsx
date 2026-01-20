@@ -13,8 +13,18 @@ type TagField = {
 
 const ESSENTIALS: TagField[] = [
   { key: "title", label: "Title", placeholder: "Song title" },
+  {
+    key: "subtitle",
+    label: "Subtitle",
+    placeholder: "Remastered, feat. guest, etc.",
+  },
   { key: "artist", label: "Artist", placeholder: "Primary artist" },
   { key: "album", label: "Album", placeholder: "Album name" },
+  {
+    key: "set_subtitle",
+    label: "Set Subtitle",
+    placeholder: "Deluxe Edition, Disc 2...",
+  },
   {
     key: "album_artist",
     label: "Album Artist",
@@ -25,6 +35,11 @@ const ESSENTIALS: TagField[] = [
 ];
 
 const RELEASE_DETAILS: TagField[] = [
+  {
+    key: "original_release_time",
+    label: "Original Release Date",
+    placeholder: "YYYY-MM-DD",
+  },
   {
     key: "track_number",
     label: "Track Number",
@@ -50,7 +65,6 @@ const RELEASE_DETAILS: TagField[] = [
     key: "isrc",
     label: "ISRC",
     placeholder: "US-ABC-24-00001",
-    colSpan: "full",
   },
 ];
 
@@ -58,9 +72,14 @@ const CREDITS: TagField[] = [
   { key: "composer", label: "Composer", placeholder: "Composer name" },
   { key: "lyricist", label: "Lyricist", placeholder: "Lyric writer" },
   { key: "publisher", label: "Publisher", placeholder: "Label / Publisher" },
+  { key: "remixer", label: "Remixer", placeholder: "If this is a remix" },
   { key: "copyright", label: "Copyright", placeholder: "℗ & © info" },
+  {
+    key: "produced_notice",
+    label: "Produced Notice",
+    placeholder: "℗ 2025 Label Inc.",
+  },
   { key: "mood", label: "Mood", placeholder: "Euphoric night drive" },
-  { key: "encoded_by", label: "Encoded By", placeholder: "floEditor" },
 ];
 
 const URLS: TagField[] = [
@@ -68,6 +87,24 @@ const URLS: TagField[] = [
     key: "url_commercial",
     label: "Commercial URL",
     placeholder: "https://example.com/buy",
+    colSpan: "full",
+  },
+  {
+    key: "url_copyright",
+    label: "Copyright URL",
+    placeholder: "https://example.com/copyright",
+    colSpan: "full",
+  },
+  {
+    key: "url_artist",
+    label: "Artist URL",
+    placeholder: "https://artist.com",
+    colSpan: "full",
+  },
+  {
+    key: "url_publisher",
+    label: "Publisher URL",
+    placeholder: "https://publisher.com",
     colSpan: "full",
   },
 ];
@@ -131,7 +168,7 @@ export function BasicTagsSection({
       <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
         <div>
           <p className="micro-label">Metadata</p>
-          <h2 className="text-xl font-semibold mt-1">Flo™ Tag Editor</h2>
+          <h2 className="text-xl font-semibold mt-1">Basic Tags</h2>
         </div>
         <div className="text-sm bg-primary/10 border border-primary/30 rounded-full px-4 py-1 font-medium text-primary-foreground/80">
           {populatedFields} / {totalFields} fields filled

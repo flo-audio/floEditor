@@ -183,6 +183,7 @@ interface FloMetadata {
   disc_number?: number;
   disc_total?: number;
   isrc?: string;
+  playlist_delay?: number;
 
   // INVOLVED PERSONS
   artist?: string;
@@ -270,7 +271,9 @@ interface FloMetadata {
 
   // flo™-SPECIFIC
   flo_encoder_version?: string;
+  encoder_settings?: string;
   source_format?: string;
+  original_filename?: string;
   custom: Record<string, any>; // JSON value
 }
 
