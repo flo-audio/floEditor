@@ -2,6 +2,15 @@
 
 ## Unimplemented/Missing metadata fields in floEditor
 
+### Read-only by user:
+- [ ] `encoding_time`
+- [ ] `tagging_time`
+- [ ] `encoder_settings`
+- [ ] `flo_encoder_version`
+- [ ] `source_format`
+- [ ] `original_filename`
+- [ ] `Encoded By`
+
 ### IDENTIFICATION / BASIC INFO
 - [ ] `subtitle`
 - [ ] `content_group`
@@ -20,8 +29,6 @@
 - [ ] `recording_time` (string)
 - [ ] `release_time`
 - [ ] `original_release_time`
-- [ ] `encoding_time`
-- [ ] `tagging_time`
 
 ### RIGHTS / LEGAL / SORTING
 - [ ] `produced_notice`
@@ -54,13 +61,3 @@
 - [ ] Some `PictureType` and `SectionType` options exist in Rust but are not accessible in the UI
   - [ ] “bright_coloured_fish”, ”video_screen_capture”, 
   - [ ] Section markers like “breakdown”, “drop”, “instrumental”, “silence”, “other”
-
-## Done
-
-- [X?] `encoder_settings`
-- [X?] `flo_encoder_version`
-- [X?] `source_format`
-- [X?] `original_filename`
-  - These are meant to be encoder/decoder (or more likely reflo-side) tags and should not be user editable
-  - But maybe viewable?
-    - If so, also include `Encoded By` in this
