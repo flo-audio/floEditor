@@ -16,7 +16,6 @@ import { AlertMessage } from "./Alert";
 import { ThemeToggle } from "./ThemeToggle";
 import { useFloProcessor } from "../hooks/useFloProcessor";
 import { useFloLoader } from "../hooks/useFloLoader";
-import { useLRCParser } from "../hooks/useLRCParser";
 import { DEFAULT_METADATA, DEFAULT_SYLT_FRAME } from "../utils/constants";
 import { WaveformSection, generateWaveformData } from "./Waveform";
 import { AdvancedTagsSection } from "./AdvancedTags";
@@ -24,13 +23,13 @@ import { ViewInfo } from "./ViewInfo";
 
 export default function App() {
   const [file, setFile] = useState<File | null>(null);
-  const [lrcText, setLrcText] = useState<string>("");
+  const [, setLrcText] = useState<string>("");
   const [showEruda, setShowEruda] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [metadataSummary, setMetadataSummary] = useState("");
   const [originalFileBytes, setOriginalFileBytes] = useState<Uint8Array | null>(
-    null,
+    null
   );
   const { isProcessing, updateMetadata, downloadFile, resetMetadata } =
     useFloProcessor();
@@ -44,7 +43,6 @@ export default function App() {
   }));
   const activeFileSignature = useRef("");
   const { isLoading: isReadingMetadata, loadFloFile } = useFloLoader();
-  const { parseLRCFormat } = useLRCParser();
 
   useEffect(() => {
     if (typeof window !== "undefined" && showEruda) {
@@ -56,7 +54,7 @@ export default function App() {
   }, [showEruda]);
 
   const populatedFields = Object.values(metadata).filter(
-    (value) => typeof value === "string" && value.trim().length > 0,
+    (value) => typeof value === "string" && value.trim().length > 0
   ).length;
 
   const sessionStats = [
@@ -79,7 +77,7 @@ export default function App() {
 
   const buildFileSignature = useCallback(
     (target: File) => `${target.name}:${target.lastModified}:${target.size}`,
-    [],
+    []
   );
 
   const handleRegenerateWaveform = useCallback(async () => {
@@ -92,7 +90,7 @@ export default function App() {
       const wf = generateWaveformData(
         samples,
         audioInfo.sample_rate,
-        audioInfo.channels,
+        audioInfo.channels
       );
       setMetadata((prev) => ({ ...prev, waveform_data: wf }));
       setSuccess("Waveform re-generated from audio data.");
@@ -178,7 +176,7 @@ export default function App() {
             nextMetadata.waveform_data = generateWaveformData(
               samples,
               newAudioInfo.sample_rate,
-              newAudioInfo.channels,
+              newAudioInfo.channels
             );
           } catch (err) {
             // Optionally setError or no-op
@@ -190,7 +188,7 @@ export default function App() {
         // Extract album art from pictures if present
         if (nextMetadata.pictures) {
           const coverPic = nextMetadata.pictures.find(
-            (p) => p.picture_type === "cover_front",
+            (p) => p.picture_type === "cover_front"
           );
           if (coverPic) {
             const blob = new Blob([coverPic.data], {
@@ -215,7 +213,7 @@ export default function App() {
         }
 
         const importedFieldCount = Object.values(nextMetadata || {}).filter(
-          (value) => typeof value === "string" && value.trim().length > 0,
+          (value) => typeof value === "string" && value.trim().length > 0
         ).length;
         const importedLyrics =
           nextMetadata?.synced_lyrics?.[0]?.lines.length ?? 0;
@@ -225,12 +223,12 @@ export default function App() {
         setMetadataSummary(
           importedFieldCount > 0
             ? `Imported ${importedFieldCount} embedded tag${importedFieldCount === 1 ? "" : "s"}.`
-            : "No embedded tags found.",
+            : "No embedded tags found."
         );
         setSuccess(
           hasImportedData
             ? "Existing metadata imported. Continue editing below."
-            : "File loaded. Add or update tags below.",
+            : "File loaded. Add or update tags below."
         );
       } catch (loaderErr) {
         if (activeFileSignature.current !== signature) {
@@ -239,13 +237,13 @@ export default function App() {
         console.error("Failed to parse metadata", loaderErr);
         setMetadataSummary("");
         setError(
-          "Loaded file, but could not read embedded metadata automatically.",
+          "Loaded file, but could not read embedded metadata automatically."
         );
         setSuccess(null);
         setAudioInfo(null);
       }
     },
-    [loadFloFile, buildFileSignature, resetMetadata],
+    [loadFloFile, buildFileSignature, resetMetadata]
   );
 
   const handleMetadataChange = (field: keyof FloMetadata, value: any) => {
@@ -254,7 +252,7 @@ export default function App() {
 
   function handlePopularimeterChange(
     field: "email" | "rating" | "play_count",
-    value: any,
+    value: any
   ) {
     setMetadata((prev) => ({
       ...prev,
@@ -268,27 +266,6 @@ export default function App() {
       },
     }));
   }
-
-  const handleLRCImport = () => {
-    if (lrcText.trim()) {
-      const entries = parseLRCFormat(lrcText);
-      setSyltFrame((prev) => ({ ...prev, text: entries }));
-      if (!metadata.lyrics || metadata.lyrics.length === 0) {
-        const derivedLyrics = entries
-          .map(([line]) => line?.trim())
-          .filter(Boolean)
-          .join("\n");
-        if (derivedLyrics) {
-          setMetadata((prev) => ({
-            ...prev,
-            lyrics: [{ text: derivedLyrics }],
-          }));
-        }
-      }
-      setLrcText("");
-      setSuccess("LRC format lyrics imported successfully!");
-    }
-  };
 
   const handleProcess = async () => {
     if (!file || !originalFileBytes) return;
@@ -475,15 +452,19 @@ export default function App() {
         {/* Synced Lyrics */}
         <SyncedLyricsSection
           syncedLyrics={metadata.synced_lyrics}
-          onSyncedLyricsChange={(syncedLyrics) =>
-            setMetadata({ ...metadata, synced_lyrics: syncedLyrics })
+          onSyncedLyricsChange={(val) =>
+            handleMetadataChange("synced_lyrics", val)
           }
-          lrcText={lrcText}
-          onLrcTextChange={setLrcText}
-          onImport={handleLRCImport}
-          unsyncedLyrics={metadata.lyrics?.[0]?.text || ""}
-          onUnsyncedLyricsChange={(value) =>
-            setMetadata({ ...metadata, lyrics: value ? [{ text: value }] : [] })
+          unsyncedLyrics={
+            Array.isArray(metadata.lyrics)
+              ? metadata.lyrics.map((l) => l.text)
+              : []
+          }
+          onUnsyncedLyricsChange={(arr) =>
+            handleMetadataChange(
+              "lyrics",
+              arr.map((text) => ({ text }))
+            )
           }
         />
 
