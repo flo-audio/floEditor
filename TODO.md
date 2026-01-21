@@ -8,8 +8,6 @@
 - [ ] `integrated_loudness_lufs`
 - [ ] `loudness_range_lu`
 - [ ] `true_peak_dbtp`
-- [ ] `remix_chain`
-- [ ] `artist_signature`
 
 ## Done
 
@@ -65,6 +63,11 @@
 - [x] `url_payment`
 - [x] `url_publisher`
 - [X] `user_urls`
+
+### COMPLEX/ADVANCED (might complete after v0.1.0)
+
+- [X] `remix_chain`
+- [X] `artist_signature`
 
 ### COVERAGE
 

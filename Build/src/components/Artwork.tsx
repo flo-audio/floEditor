@@ -1,36 +1,57 @@
-import { Image, Trash2, Upload, Plus, Play } from "lucide-react";
+// Build/src/components/Artwork.tsx
 
-interface ArtworkSectionProps {
-  pictures?: Picture[];
-  onPicturesChange: (pictures: Picture[]) => void;
-  coverVariants?: CoverVariant[];
-  onCoverVariantsChange: (variants: CoverVariant[]) => void;
-  animatedCover?: AnimatedCover;
-  onAnimatedCoverChange: (cover?: AnimatedCover) => void;
-}
+import { useState } from "react";
+import {
+  Image,
+  Trash2,
+  Upload,
+  Plus,
+  Play,
+  PenLine,
+  ChevronDown,
+  ChevronRight,
+  FileImage,
+} from "lucide-react";
 
-const PICTURE_TYPES: { value: PictureType; label: string }[] = [
+type RarePictureType =
+  | "media"
+  | "composer"
+  | "lyricist"
+  | "recording_location"
+  | "during_recording"
+  | "during_performance"
+  | "other"
+  | "file_icon"
+  | "other_file_icon"
+  | "video_screen_capture"
+  | "bright_coloured_fish"
+  | "illustration";
+
+const STANDARD_PICTURE_TYPES: { value: PictureType; label: string }[] = [
   { value: "cover_front", label: "Front Cover" },
   { value: "cover_back", label: "Back Cover" },
-  { value: "leaflet_page", label: "Leaflet Page" },
-  { value: "media", label: "Media (Label/CD)" },
-  { value: "lead_artist", label: "Lead Artist" },
+  { value: "leaflet_page", label: "Leaflet" },
   { value: "artist", label: "Artist" },
-  { value: "conductor", label: "Conductor" },
+  { value: "lead_artist", label: "Lead Artist" },
   { value: "band", label: "Band" },
+  { value: "conductor", label: "Conductor" },
+  { value: "band_logo", label: "Band Logo" },
+  { value: "publisher_logo", label: "Publisher Logo" },
+];
+
+const RARE_PICTURE_TYPES: { value: RarePictureType; label: string }[] = [
   { value: "composer", label: "Composer" },
   { value: "lyricist", label: "Lyricist" },
+  { value: "video_screen_capture", label: "Video Screen Capture" },
   { value: "recording_location", label: "Recording Location" },
   { value: "during_recording", label: "During Recording" },
   { value: "during_performance", label: "During Performance" },
-  { value: "video_screen_capture", label: "Video Screen Capture" },
-  { value: "bright_coloured_fish", label: "Bright Coloured Fish 🐟" },
   { value: "illustration", label: "Illustration" },
-  { value: "band_logo", label: "Band Logo" },
-  { value: "publisher_logo", label: "Publisher Logo" },
   { value: "file_icon", label: "File Icon (32x32 PNG)" },
   { value: "other_file_icon", label: "Other File Icon" },
+  { value: "media", label: "Media" },
   { value: "other", label: "Other" },
+  { value: "bright_coloured_fish", label: "Bright Coloured Fish 🐟" },
 ];
 
 const VARIANT_TYPES: { value: CoverVariantType; label: string }[] = [
@@ -45,6 +66,17 @@ const VARIANT_TYPES: { value: CoverVariantType; label: string }[] = [
   { value: "digital", label: "Digital" },
 ];
 
+interface ArtworkSectionProps {
+  pictures?: Picture[];
+  onPicturesChange: (pictures: Picture[]) => void;
+  coverVariants?: CoverVariant[];
+  onCoverVariantsChange: (variants: CoverVariant[]) => void;
+  animatedCover?: AnimatedCover;
+  onAnimatedCoverChange: (cover?: AnimatedCover) => void;
+  artistSignature?: Picture;
+  onArtistSignatureChange?: (pic?: Picture) => void;
+}
+
 export function ArtworkSection({
   pictures = [],
   onPicturesChange,
@@ -52,10 +84,19 @@ export function ArtworkSection({
   onCoverVariantsChange,
   animatedCover,
   onAnimatedCoverChange,
+  artistSignature,
+  onArtistSignatureChange,
 }: ArtworkSectionProps) {
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+
+  // Standard/rare uploads are merged in 'pictures'
+  const getUrl = (data: Uint8Array, mime: string) =>
+    URL.createObjectURL(new Blob([data], { type: mime }));
+
+  // Shared (standard/rare) upload
   const handlePictureFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>,
-    type: PictureType,
+    type: PictureType
   ) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -72,12 +113,12 @@ export function ArtworkSection({
       const newPicture: Picture = {
         mime_type: file.type,
         picture_type: type,
-        description: `${PICTURE_TYPES.find((t) => t.value === type)?.label} Art`,
+        description: `${[...STANDARD_PICTURE_TYPES, ...RARE_PICTURE_TYPES].find((t) => t.value === type)?.label || "Picture"} Art`,
         data,
       };
+      // Only one per type
       const updatedPictures = pictures.filter((p) => p.picture_type !== type);
-      updatedPictures.push(newPicture);
-      onPicturesChange(updatedPictures);
+      onPicturesChange([...updatedPictures, newPicture]);
     }
   };
 
@@ -85,6 +126,7 @@ export function ArtworkSection({
     onPicturesChange(pictures.filter((p) => p.picture_type !== type));
   };
 
+  // Cover Variants
   const handleVariantAdd = () => {
     onCoverVariantsChange([
       ...coverVariants,
@@ -99,7 +141,7 @@ export function ArtworkSection({
 
   const handleVariantFileChange = async (
     index: number,
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -118,7 +160,7 @@ export function ArtworkSection({
   const handleVariantUpdate = (
     index: number,
     field: keyof CoverVariant,
-    value: any,
+    value: any
   ) => {
     const updated = [...coverVariants];
     updated[index] = { ...updated[index], [field]: value };
@@ -129,8 +171,9 @@ export function ArtworkSection({
     onCoverVariantsChange(coverVariants.filter((_, i) => i !== index));
   };
 
+  // Animated
   const handleAnimatedFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -160,26 +203,46 @@ export function ArtworkSection({
     onAnimatedCoverChange(undefined);
   };
 
-  const getUrl = (data: Uint8Array, mime: string) =>
-    URL.createObjectURL(new Blob([data], { type: mime }));
+  // Artist Signature
+  const handleArtistSignatureChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      const arrayBuffer = await file.arrayBuffer();
+      const data = new Uint8Array(arrayBuffer);
+      const newPic: Picture = {
+        mime_type: file.type,
+        picture_type: "other", // "other" type, but for signature
+        description: "Artist Signature",
+        data,
+      };
+      onArtistSignatureChange && onArtistSignatureChange(newPic);
+    }
+  };
+  const removeArtistSignature = () =>
+    onArtistSignatureChange && onArtistSignatureChange(undefined);
 
+  // Render
   return (
     <section className="glass-panel p-6 sm:p-8">
-      <div className="mb-4">
+      <div>
         <p className="micro-label">Artwork</p>
         <h2 className="text-lg font-semibold">Album Art & Covers</h2>
         <p className="text-xs text-muted-foreground mt-1">
-          Manage covers, variants, and animated art
+          Manage covers, variants, and animated art. For rare/advanced art
+          types, see below.
         </p>
       </div>
+
       <div className="space-y-8">
         {/* Standard Covers */}
         <div>
           <h3 className="text-sm font-semibold tracking-wide text-foreground/70 mb-4">
-            Standard Covers
+            Standard Covers & Art
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {PICTURE_TYPES.map(({ value, label }) => {
+            {STANDARD_PICTURE_TYPES.map(({ value, label }) => {
               const pic = pictures.find((p) => p.picture_type === value);
               return (
                 <div
@@ -260,7 +323,7 @@ export function ArtworkSection({
                         handleVariantUpdate(
                           index,
                           "variant_type",
-                          e.target.value as CoverVariantType,
+                          e.target.value as CoverVariantType
                         )
                       }
                       className="border border-input/60 rounded-md px-2 py-1 text-sm bg-background/50"
@@ -277,7 +340,7 @@ export function ArtworkSection({
                         handleVariantUpdate(
                           index,
                           "description",
-                          e.target.value,
+                          e.target.value
                         )
                       }
                       placeholder="Description"
@@ -342,7 +405,7 @@ export function ArtworkSection({
                     onChange={(e) =>
                       handleAnimatedUpdate(
                         "duration_ms",
-                        parseInt(e.target.value) || 0,
+                        parseInt(e.target.value) || 0
                       )
                     }
                     className="w-full border border-input/60 rounded-md px-2 py-1 text-sm bg-background/50"
@@ -356,7 +419,7 @@ export function ArtworkSection({
                     onChange={(e) =>
                       handleAnimatedUpdate(
                         "loop_count",
-                        parseInt(e.target.value) || 0,
+                        parseInt(e.target.value) || 0
                       )
                     }
                     className="w-full border border-input/60 rounded-md px-2 py-1 text-sm bg-background/50"
@@ -392,6 +455,133 @@ export function ArtworkSection({
             </label>
           )}
         </div>
+      </div>
+
+      {/* Advanced Artwork Collapsible */}
+      <div className="mt-10">
+        <button
+          type="button"
+          className="flex items-center w-full gap-2 text-lg font-semibold mb-4 select-none"
+          onClick={() => setAdvancedOpen((v) => !v)}
+          aria-expanded={advancedOpen}
+        >
+          <span>Advanced Artwork</span>
+          <span className="ml-auto">
+            {advancedOpen ? (
+              <ChevronDown className="h-5 w-5" />
+            ) : (
+              <ChevronRight className="h-5 w-5" />
+            )}
+          </span>
+        </button>
+        {advancedOpen && (
+          <div className="space-y-8">
+            {/* Artist Signature */}
+            <div>
+              <h3 className="text-xs font-semibold flex items-center gap-2 text-foreground/70 mb-2">
+                <PenLine className="h-4 w-4 icon-accent" />
+                Artist Signature
+              </h3>
+              {artistSignature ? (
+                <div className="flex items-center gap-4 border rounded p-3 bg-primary/10">
+                  <img
+                    src={getUrl(
+                      artistSignature.data,
+                      artistSignature.mime_type
+                    )}
+                    alt="Signature"
+                    className="h-16 rounded border"
+                  />
+                  <button
+                    onClick={removeArtistSignature}
+                    type="button"
+                    className="btn"
+                    data-variant="soft"
+                    data-tone="danger"
+                    data-size="sm"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center gap-2 p-3 border-2 border-dashed rounded bg-background/70 cursor-pointer">
+                  <PenLine className="h-7 w-7 icon-accent" />
+                  <span className="text-xs">
+                    Upload Artist Signature (PNG/JPG)
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg"
+                    onChange={handleArtistSignatureChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+
+            {/* Rare Images */}
+            <div>
+              <h3 className="text-xs font-semibold flex items-center gap-2 text-foreground/70 mb-3">
+                <FileImage className="h-4 w-4 icon-accent" />
+                Rare or Advanced Image Types
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {RARE_PICTURE_TYPES.map(({ value, label }) => {
+                  const pic = pictures.find((p) => p.picture_type === value);
+                  return (
+                    <div
+                      key={value}
+                      className="relative group rounded-lg border border-primary/20 bg-gradient-to-br from-primary/10 to-secondary/5 p-4 shadow-sm"
+                    >
+                      {pic ? (
+                        <div className="space-y-2">
+                          <img
+                            src={getUrl(pic.data, pic.mime_type)}
+                            alt={label}
+                            className="w-full h-20 object-contain rounded border"
+                          />
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-medium">{label}</span>
+                            <button
+                              onClick={() => handlePictureRemove(value)}
+                              className="btn"
+                              data-variant="soft"
+                              data-tone="danger"
+                              data-size="xs"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <label className="flex flex-col items-center justify-center gap-2 h-20 cursor-pointer hover:bg-primary/10 rounded transition">
+                          <Plus className="h-5 w-5 icon-accent" />
+                          <span className="text-xs font-medium">{label}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handlePictureFileChange(e, value)}
+                            className="hidden"
+                          />
+                        </label>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <span>
+                <hr></hr>
+              </span>
+
+              <div className="text-xs text-muted-foreground mt-2">
+                These images are rarely used—ID3v2 extension types or
+                publisher/artist-specific.
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

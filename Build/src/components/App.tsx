@@ -20,6 +20,7 @@ import { DEFAULT_METADATA, DEFAULT_SYLT_FRAME } from "../utils/constants";
 import { WaveformSection, generateWaveformData } from "./Waveform";
 import { AdvancedTagsSection } from "./AdvancedTags";
 import { ViewInfo } from "./ViewInfo";
+import { RemixChainSection } from "./RemixChain";
 
 export default function App() {
   const [file, setFile] = useState<File | null>(null);
@@ -447,6 +448,10 @@ export default function App() {
           onAnimatedCoverChange={(animatedCover) =>
             setMetadata({ ...metadata, animated_cover: animatedCover })
           }
+          artistSignature={metadata.artist_signature}
+          onArtistSignatureChange={(pic) =>
+            setMetadata({ ...metadata, artist_signature: pic })
+          }
         />
 
         {/* Synced Lyrics */}
@@ -497,6 +502,14 @@ export default function App() {
           creatorNotes={metadata.creator_notes ?? []}
           onCreatorNotesChange={(list) =>
             handleMetadataChange("creator_notes", list)
+          }
+        />
+
+        {/* Remix Chain */}
+        <RemixChainSection
+          remixChain={metadata.remix_chain ?? []}
+          onRemixChainChange={(list) =>
+            handleMetadataChange("remix_chain", list)
           }
         />
 
