@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { UserUrlsSection } from "./UserUrls";
+import { InvolvedPeopleSection } from "./InvolvedPeople";
 
 interface AdvancedTagsSectionProps {
   metadata: FloMetadata;
@@ -216,6 +218,31 @@ export function AdvancedTagsSection({
               </div>
             </div>
           ))}
+
+          <UserUrlsSection
+            userUrls={metadata.user_urls ?? []}
+            onUserUrlsChange={(list) => onMetadataChange("user_urls", list)}
+          />
+
+          <InvolvedPeopleSection
+            involvedPeople={(metadata.involved_people ?? []).map(
+              ([role, name]) => ({
+                role,
+                name,
+              }),
+            )}
+            onInvolvedPeopleChange={(list) =>
+              onMetadataChange(
+                "involved_people",
+                list.map(({ role, name }) => [role, name]),
+              )
+            }
+          />
+
+          <span>
+            <hr></hr>
+          </span>
+
           <p className="text-xs text-muted-foreground mt-4">
             These fields are optional and rarely used; fill in only if needed
             for advanced use cases, library sorting, or publishing metadata.

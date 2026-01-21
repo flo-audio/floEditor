@@ -29,7 +29,7 @@ export default function App() {
   const [success, setSuccess] = useState<string | null>(null);
   const [metadataSummary, setMetadataSummary] = useState("");
   const [originalFileBytes, setOriginalFileBytes] = useState<Uint8Array | null>(
-    null
+    null,
   );
   const { isProcessing, updateMetadata, downloadFile, resetMetadata } =
     useFloProcessor();
@@ -54,7 +54,7 @@ export default function App() {
   }, [showEruda]);
 
   const populatedFields = Object.values(metadata).filter(
-    (value) => typeof value === "string" && value.trim().length > 0
+    (value) => typeof value === "string" && value.trim().length > 0,
   ).length;
 
   const sessionStats = [
@@ -77,7 +77,7 @@ export default function App() {
 
   const buildFileSignature = useCallback(
     (target: File) => `${target.name}:${target.lastModified}:${target.size}`,
-    []
+    [],
   );
 
   const handleRegenerateWaveform = useCallback(async () => {
@@ -90,7 +90,7 @@ export default function App() {
       const wf = generateWaveformData(
         samples,
         audioInfo.sample_rate,
-        audioInfo.channels
+        audioInfo.channels,
       );
       setMetadata((prev) => ({ ...prev, waveform_data: wf }));
       setSuccess("Waveform re-generated from audio data.");
@@ -176,7 +176,7 @@ export default function App() {
             nextMetadata.waveform_data = generateWaveformData(
               samples,
               newAudioInfo.sample_rate,
-              newAudioInfo.channels
+              newAudioInfo.channels,
             );
           } catch (err) {
             // Optionally setError or no-op
@@ -188,7 +188,7 @@ export default function App() {
         // Extract album art from pictures if present
         if (nextMetadata.pictures) {
           const coverPic = nextMetadata.pictures.find(
-            (p) => p.picture_type === "cover_front"
+            (p) => p.picture_type === "cover_front",
           );
           if (coverPic) {
             const blob = new Blob([coverPic.data], {
@@ -213,7 +213,7 @@ export default function App() {
         }
 
         const importedFieldCount = Object.values(nextMetadata || {}).filter(
-          (value) => typeof value === "string" && value.trim().length > 0
+          (value) => typeof value === "string" && value.trim().length > 0,
         ).length;
         const importedLyrics =
           nextMetadata?.synced_lyrics?.[0]?.lines.length ?? 0;
@@ -223,12 +223,12 @@ export default function App() {
         setMetadataSummary(
           importedFieldCount > 0
             ? `Imported ${importedFieldCount} embedded tag${importedFieldCount === 1 ? "" : "s"}.`
-            : "No embedded tags found."
+            : "No embedded tags found.",
         );
         setSuccess(
           hasImportedData
             ? "Existing metadata imported. Continue editing below."
-            : "File loaded. Add or update tags below."
+            : "File loaded. Add or update tags below.",
         );
       } catch (loaderErr) {
         if (activeFileSignature.current !== signature) {
@@ -237,13 +237,13 @@ export default function App() {
         console.error("Failed to parse metadata", loaderErr);
         setMetadataSummary("");
         setError(
-          "Loaded file, but could not read embedded metadata automatically."
+          "Loaded file, but could not read embedded metadata automatically.",
         );
         setSuccess(null);
         setAudioInfo(null);
       }
     },
-    [loadFloFile, buildFileSignature, resetMetadata]
+    [loadFloFile, buildFileSignature, resetMetadata],
   );
 
   const handleMetadataChange = (field: keyof FloMetadata, value: any) => {
@@ -252,7 +252,7 @@ export default function App() {
 
   function handlePopularimeterChange(
     field: "email" | "rating" | "play_count",
-    value: any
+    value: any,
   ) {
     setMetadata((prev) => ({
       ...prev,
@@ -463,7 +463,7 @@ export default function App() {
           onUnsyncedLyricsChange={(arr) =>
             handleMetadataChange(
               "lyrics",
-              arr.map((text) => ({ text }))
+              arr.map((text) => ({ text })),
             )
           }
         />

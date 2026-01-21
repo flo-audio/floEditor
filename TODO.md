@@ -2,15 +2,6 @@
 
 ## Unimplemented/Missing metadata fields in floEditor
 
-### INVOLVED PEOPLE / CREDITS
-
-- [ ] `involved_people` (array of [role, name])
-- [ ] `musician_credits` (array of [instrument, name])
-
-### URLS (not surfaced in UI, though TS has them and some are )
-
-- [ ] `user_urls`
-
 ### COMPLEX/ADVANCED (might complete after v0.1.0)
 
 - [ ] `spectrum_fingerprint`
@@ -19,12 +10,6 @@
 - [ ] `true_peak_dbtp`
 - [ ] `remix_chain`
 - [ ] `artist_signature`
-
-### COVERAGE
-
-- [ ] Some `PictureType` and `SectionType` options exist in Rust but are not accessible in the UI
-  - [ ] “bright_coloured_fish”, ”video_screen_capture”,
-  - [ ] Section markers like “breakdown”, “drop”, “instrumental”, “silence”, “other”
 
 ## Done
 
@@ -67,6 +52,8 @@
 ### INVOLVED PEOPLE / CREDITS
 
 - [x] `remixer`
+- [X] `musician_credits` (array of [instrument, name])
+- [X] `involved_people` (array of [role, name])
 
 ### URLS
 
@@ -77,3 +64,10 @@
 - [x] `url_radio_station`
 - [x] `url_payment`
 - [x] `url_publisher`
+- [X] `user_urls`
+
+### COVERAGE
+
+- [X] Some `PictureType` and `SectionType` options exist in Rust but are not accessible in the UI
+  - [X] “bright_coloured_fish”, ”video_screen_capture”,
+  - [X] Section markers like “breakdown”, “drop”, “instrumental”, “silence”, “other”

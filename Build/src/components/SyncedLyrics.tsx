@@ -97,7 +97,7 @@ export function SyncedLyricsSection({
     if (!parsed.length) return;
     handleGroupField(
       "lines",
-      parsed.map(([text, timestamp_ms]) => ({ text, timestamp_ms }))
+      parsed.map(([text, timestamp_ms]) => ({ text, timestamp_ms })),
     );
     setShowLrcImport(false);
     setLrcText("");
@@ -105,7 +105,7 @@ export function SyncedLyricsSection({
 
   // Handle LRC file upload (text import)
   const handleLrcFileUpload = async (
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;

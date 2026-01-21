@@ -12,8 +12,8 @@ interface ArtworkSectionProps {
 const PICTURE_TYPES: { value: PictureType; label: string }[] = [
   { value: "cover_front", label: "Front Cover" },
   { value: "cover_back", label: "Back Cover" },
-  { value: "leaflet_page", label: "Leaflet" },
-  { value: "media", label: "Media" },
+  { value: "leaflet_page", label: "Leaflet Page" },
+  { value: "media", label: "Media (Label/CD)" },
   { value: "lead_artist", label: "Lead Artist" },
   { value: "artist", label: "Artist" },
   { value: "conductor", label: "Conductor" },
@@ -23,8 +23,14 @@ const PICTURE_TYPES: { value: PictureType; label: string }[] = [
   { value: "recording_location", label: "Recording Location" },
   { value: "during_recording", label: "During Recording" },
   { value: "during_performance", label: "During Performance" },
+  { value: "video_screen_capture", label: "Video Screen Capture" },
+  { value: "bright_coloured_fish", label: "Bright Coloured Fish 🐟" },
+  { value: "illustration", label: "Illustration" },
   { value: "band_logo", label: "Band Logo" },
   { value: "publisher_logo", label: "Publisher Logo" },
+  { value: "file_icon", label: "File Icon (32x32 PNG)" },
+  { value: "other_file_icon", label: "Other File Icon" },
+  { value: "other", label: "Other" },
 ];
 
 const VARIANT_TYPES: { value: CoverVariantType; label: string }[] = [

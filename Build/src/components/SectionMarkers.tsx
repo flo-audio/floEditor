@@ -22,11 +22,18 @@ const SECTION_TYPES: {
 }[] = [
   { value: "intro", label: "Intro", icon: Music },
   { value: "verse", label: "Verse", icon: BookOpen },
+  { value: "pre_chorus", label: "Pre-Chorus", icon: Mic },
   { value: "chorus", label: "Chorus", icon: Mic },
+  { value: "post_chorus", label: "Post-Chorus", icon: Mic },
   { value: "bridge", label: "Bridge", icon: Building2 },
+  { value: "breakdown", label: "Breakdown", icon: Guitar },
+  { value: "drop", label: "Drop", icon: LogOut },
+  { value: "buildup", label: "Buildup", icon: LogOut },
   { value: "solo", label: "Solo", icon: Guitar },
+  { value: "instrumental", label: "Instrumental", icon: Guitar },
   { value: "outro", label: "Outro", icon: LogOut },
-  // TODO: Add more later
+  { value: "silence", label: "Silence", icon: Clock },
+  { value: "other", label: "Other", icon: Music },
 ];
 
 export function SectionMarkersSection({

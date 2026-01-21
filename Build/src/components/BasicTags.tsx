@@ -1,3 +1,5 @@
+import { MusicianCreditsSection } from "./MusicianCredits";
+
 interface BasicTagsSectionProps {
   metadata: FloMetadata;
   onMetadataChange: (field: keyof FloMetadata, value: any) => void;
@@ -200,6 +202,22 @@ export function BasicTagsSection({
             {CREDITS.map(renderInput)}
           </div>
         </div>
+
+        <MusicianCreditsSection
+          musicianCredits={(metadata.musician_credits ?? []).map(
+            ([instrument, name]) => ({
+              instrument,
+              name,
+            }),
+          )}
+          onMusicianCreditsChange={(list) =>
+            onMetadataChange(
+              "musician_credits",
+              list.map(({ instrument, name }) => [instrument, name]),
+            )
+          }
+        />
+
         <div className="space-y-4">
           <h3 className="text-sm font-semibold tracking-wide text-foreground/70">
             Links
