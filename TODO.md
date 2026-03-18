@@ -2,7 +2,9 @@
 
 ## Unimplemented/Missing metadata fields in floEditor
 
-### COMPLEX/ADVANCED (might complete after v0.1.0)
+### COMPLEX/ADVANCED (will complete after v0.1.0)
+
+> (these depend on a libflo feature that is currently WIP, so cannot add now)
 
 - [ ] `spectrum_fingerprint`
 - [ ] `integrated_loudness_lufs`
