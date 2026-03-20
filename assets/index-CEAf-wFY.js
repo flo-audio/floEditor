@@ -358,7 +358,7 @@ let __tla = (async () => {
       return q.H.useSyncExternalStore(y, w, H);
     }, W.useTransition = function() {
       return q.H.useTransition();
-    }, W.version = "19.2.3", W;
+    }, W.version = "19.2.4", W;
   }
   var em;
   function ks() {
@@ -702,7 +702,7 @@ let __tla = (async () => {
       return g.H.useFormState(_, v, T);
     }, nt.useFormStatus = function() {
       return g.H.useHostTransitionStatus();
-    }, nt.version = "19.2.3", nt;
+    }, nt.version = "19.2.4", nt;
   }
   var nm;
   function jg() {
@@ -8757,7 +8757,7 @@ Error generating stack: ` + a.message + `
       }
     };
     var Fd = r.version;
-    if (Fd !== "19.2.3") throw Error(f(527, Fd, "19.2.3"));
+    if (Fd !== "19.2.4") throw Error(f(527, Fd, "19.2.4"));
     B.findDOMNode = function(e) {
       var t = e._reactInternals;
       if (t === void 0) throw typeof e.render == "function" ? Error(f(188)) : (e = Object.keys(e).join(","), Error(f(268, e)));
@@ -8765,10 +8765,10 @@ Error generating stack: ` + a.message + `
     };
     var hg = {
       bundleType: 0,
-      version: "19.2.3",
+      version: "19.2.4",
       rendererPackageName: "react-dom",
       currentDispatcherRef: O,
-      reconcilerVersion: "19.2.3"
+      reconcilerVersion: "19.2.4"
     };
     if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ < "u") {
       var ci = __REACT_DEVTOOLS_GLOBAL_HOOK__;
@@ -8785,7 +8785,7 @@ Error generating stack: ` + a.message + `
       if (!b(e)) throw Error(f(299));
       var a = false, n = "", u = lo, c = ao, o = no, h = null;
       return l != null && (l.unstable_strictMode === true && (a = true), l.identifierPrefix !== void 0 && (n = l.identifierPrefix), l.onUncaughtError !== void 0 && (u = l.onUncaughtError), l.onCaughtError !== void 0 && (c = l.onCaughtError), l.onRecoverableError !== void 0 && (o = l.onRecoverableError), l.formState !== void 0 && (h = l.formState)), t = qd(e, 1, true, t, l ?? null, a, n, h, u, c, o, $d), t.context = Ld(null), l = t.current, a = Nt(), a = pi(a), n = bl(a), n.callback = null, _l(l, n, a), l = a, t.current.lanes = l, Ja(t, l), kt(t), e[na] = t.current, ss(e), new ii(t);
-    }, Yn.version = "19.2.3", Yn;
+    }, Yn.version = "19.2.4", Yn;
   }
   var im;
   function Ag() {
@@ -8842,13 +8842,14 @@ Error generating stack: ` + a.message + `
       return r().catch(x);
     });
   };
-  const Mg = (s) => s.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), Og = (s) => s.replace(/^([A-Z])|[\s-_]+(\w)/g, (r, d, f) => f ? f.toUpperCase() : d.toLowerCase()), sm = (s) => {
+  const Mm = (...s) => s.filter((r, d, f) => !!r && r.trim() !== "" && f.indexOf(r) === d).join(" ").trim();
+  const Mg = (s) => s.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+  const Og = (s) => s.replace(/^([A-Z])|[\s-_]+(\w)/g, (r, d, f) => f ? f.toUpperCase() : d.toLowerCase());
+  const sm = (s) => {
     const r = Og(s);
     return r.charAt(0).toUpperCase() + r.slice(1);
-  }, Mm = (...s) => s.filter((r, d, f) => !!r && r.trim() !== "" && f.indexOf(r) === d).join(" ").trim(), Ug = (s) => {
-    for (const r in s) if (r.startsWith("aria-") || r === "role" || r === "title") return true;
   };
-  var Dg = {
+  var Ug = {
     xmlns: "http://www.w3.org/2000/svg",
     width: 24,
     height: 24,
@@ -8859,15 +8860,19 @@ Error generating stack: ` + a.message + `
     strokeLinecap: "round",
     strokeLinejoin: "round"
   };
+  const Dg = (s) => {
+    for (const r in s) if (r.startsWith("aria-") || r === "role" || r === "title") return true;
+    return false;
+  };
   const Cg = se.forwardRef(({ color: s = "currentColor", size: r = 24, strokeWidth: d = 2, absoluteStrokeWidth: f, className: b = "", children: x, iconNode: g, ...m }, _) => se.createElement("svg", {
     ref: _,
-    ...Dg,
+    ...Ug,
     width: r,
     height: r,
     stroke: s,
     strokeWidth: f ? Number(d) * 24 / Number(r) : d,
     className: Mm("lucide", b),
-    ...!x && !Ug(m) && {
+    ...!x && !Dg(m) && {
       "aria-hidden": "true"
     },
     ...m
@@ -8912,43 +8917,6 @@ Error generating stack: ` + a.message + `
     ]
   ], Bg = de("book-open", Hg);
   const qg = [
-    [
-      "path",
-      {
-        d: "M10 12h4",
-        key: "a56b0p"
-      }
-    ],
-    [
-      "path",
-      {
-        d: "M10 8h4",
-        key: "1sr2af"
-      }
-    ],
-    [
-      "path",
-      {
-        d: "M14 21v-3a2 2 0 0 0-4 0v3",
-        key: "1rgiei"
-      }
-    ],
-    [
-      "path",
-      {
-        d: "M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2",
-        key: "secmi2"
-      }
-    ],
-    [
-      "path",
-      {
-        d: "M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16",
-        key: "16ra0t"
-      }
-    ]
-  ], Lg = de("building-2", qg);
-  const Yg = [
     [
       "path",
       {
@@ -9026,7 +8994,44 @@ Error generating stack: ` + a.message + `
         key: "1vgav8"
       }
     ]
-  ], Gg = de("bug", Yg);
+  ], Lg = de("bug", qg);
+  const Yg = [
+    [
+      "path",
+      {
+        d: "M10 12h4",
+        key: "a56b0p"
+      }
+    ],
+    [
+      "path",
+      {
+        d: "M10 8h4",
+        key: "1sr2af"
+      }
+    ],
+    [
+      "path",
+      {
+        d: "M14 21v-3a2 2 0 0 0-4 0v3",
+        key: "1rgiei"
+      }
+    ],
+    [
+      "path",
+      {
+        d: "M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2",
+        key: "secmi2"
+      }
+    ],
+    [
+      "path",
+      {
+        d: "M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16",
+        key: "16ra0t"
+      }
+    ]
+  ], Gg = de("building-2", Yg);
   const Xg = [
     [
       "path",
@@ -9047,19 +9052,19 @@ Error generating stack: ` + a.message + `
   ], Um = de("chevron-right", Qg);
   const kg = [
     [
-      "path",
-      {
-        d: "M12 6v6l4 2",
-        key: "mmk7yg"
-      }
-    ],
-    [
       "circle",
       {
         cx: "12",
         cy: "12",
         r: "10",
         key: "1mglay"
+      }
+    ],
+    [
+      "path",
+      {
+        d: "M12 6v6l4 2",
+        key: "mmk7yg"
       }
     ]
   ], Zs = de("clock", kg);
@@ -11342,7 +11347,7 @@ Error generating stack: ` + a.message + `
     {
       value: "bridge",
       label: "Bridge",
-      icon: Lg
+      icon: Gg
     },
     {
       value: "breakdown",
@@ -14105,7 +14110,7 @@ ${s.stack}` : f;
       ...Ls
     })), le = se.useRef(""), { isLoading: Q, loadFloFile: ee } = _p();
     se.useEffect(() => {
-      typeof window < "u" && f && Cs(() => import("./eruda-DuoByM6T.js").then((R) => R.e), [], import.meta.url).then((R) => {
+      typeof window < "u" && f && Cs(() => import("./eruda-BjcwTwKj.js").then((R) => R.e), [], import.meta.url).then((R) => {
         R.default.init(), R.default.show();
       });
     }, [
@@ -14324,7 +14329,7 @@ ${s.stack}` : f;
                               "data-size": "sm",
                               "data-tone": "secondary",
                               children: [
-                                i.jsx(Gg, {
+                                i.jsx(Lg, {
                                   className: "h-4 w-4 icon-accent"
                                 }),
                                 f ? "Hide" : "Show",
