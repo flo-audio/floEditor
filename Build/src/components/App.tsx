@@ -46,10 +46,14 @@ export default function App() {
   const { isLoading: isReadingMetadata, loadFloFile } = useFloLoader();
 
   useEffect(() => {
-    if (typeof window !== "undefined" && showEruda) {
+    if (typeof window !== "undefined") {
       import("eruda").then((eruda) => {
-        eruda.default.init();
-        eruda.default.show();
+        if (showEruda) {
+          eruda.default.init();
+          eruda.default.show();
+        } else {
+          eruda.default.hide();
+        }
       });
     }
   }, [showEruda]);
