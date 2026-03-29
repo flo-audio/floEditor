@@ -14110,8 +14110,8 @@ ${s.stack}` : f;
       ...Ls
     })), le = se.useRef(""), { isLoading: Q, loadFloFile: ee } = _p();
     se.useEffect(() => {
-      typeof window < "u" && f && Cs(() => import("./eruda-BjcwTwKj.js").then((R) => R.e), [], import.meta.url).then((R) => {
-        R.default.init(), R.default.show();
+      typeof window < "u" && Cs(() => import("./eruda-COz7XknG.js").then((R) => R.e), [], import.meta.url).then((R) => {
+        f ? (R.default.init(), R.default.show()) : R.default.hide();
       });
     }, [
       f
