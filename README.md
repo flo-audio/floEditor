@@ -1,5 +1,7 @@
 # floEditor
 
+> If you seem to be on a old version/something doesn't work, make sure to Hard Refresh (Cmd/Ctrl+Shift+R) or Clear Cache before opening an Issue!
+
 A browser-based metadata editor for the flo audio format.
 
 ## What it does
